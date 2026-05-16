@@ -1,0 +1,1283 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard | BilleteSeguro - Sistema Bancario</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link th:href="@{/css/style.css}" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <script th:src="@{/js/toast.js}"></script>
+    <style>
+        .chart-container {
+            position: relative;
+            height: 280px;
+            width: 100%;
+        }
+        .chart-container-small {
+            position: relative;
+            height: 220px;
+            width: 100%;
+        }
+        .live-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.75rem;
+            color: var(--success);
+            background: rgba(16, 185, 129, 0.1);
+            padding: 4px 10px;
+            border-radius: 20px;
+        }
+        .live-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--success);
+            border-radius: 50%;
+            animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.2); }
+        }
+        .activity-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+        .activity-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+        }
+        .activity-icon.deposito { background: rgba(16, 185, 129, 0.15); color: var(--success); }
+        .activity-icon.retiro { background: rgba(245, 158, 11, 0.15); color: var(--warning); }
+        .activity-icon.transferencia { background: rgba(239, 68, 68, 0.15); color: var(--danger); }
+        .activity-icon.recibida { background: rgba(6, 182, 212, 0.15); color: var(--info); }
+        .activity-details { flex: 1; }
+        .activity-title { font-weight: 500; font-size: 0.9rem; }
+        .activity-meta { font-size: 0.75rem; color: var(--text-muted); }
+        .activity-amount { font-weight: 600; font-size: 0.95rem; }
+        .activity-amount.positive { color: var(--success); }
+        .activity-amount.negative { color: var(--danger); }
+        .api-link:hover {
+            background: rgba(59, 130, 246, 0.1) !important;
+            border-color: var(--primary) !important;
+            transform: translateX(4px);
+        }
+        .pattern-card:hover {
+            transform: translateY(-2px);
+            transition: transform 0.2s ease;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+
+        <!-- SIDEBAR -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo">
+                    <div class="logo-icon">
+                        <i class="bi bi-bank"></i>
+                    </div>
+                    <div class="logo-text">
+                        <h1>BilleteSeguro</h1>
+                        <span>Enterprise Banking</span>
+                    </div>
+                </div>
+            </div>
+
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <span class="nav-section-title">Menu Principal</span>
+                    <ul class="nav-menu">
+                        <li class="nav-menu-item">
+                            <a href="/" class="nav-menu-link active">
+                                <i class="bi bi-grid-1x2-fill"></i>
+                                <span>Dashboard</span>
+                            </a>
+                        </li>
+                        <li class="nav-menu-item">
+                            <a href="/cuentas" class="nav-menu-link">
+                                <i class="bi bi-wallet2"></i>
+                                <span>Cuentas</span>
+                                <span class="badge-nav" th:text="${totalCuentas}">0</span>
+                            </a>
+                        </li>
+                        <li class="nav-menu-item">
+                            <a href="/operaciones" class="nav-menu-link">
+                                <i class="bi bi-arrow-left-right"></i>
+                                <span>Operaciones</span>
+                            </a>
+                        </li>
+                        <li class="nav-menu-item">
+                            <a href="/movimientos" class="nav-menu-link">
+                                <i class="bi bi-clock-history"></i>
+                                <span>Movimientos</span>
+                            </a>
+                        </li>
+                        <li class="nav-menu-item">
+                            <a href="/intereses" class="nav-menu-link">
+                                <i class="bi bi-graph-up-arrow"></i>
+                                <span>Intereses</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="nav-section">
+                    <span class="nav-section-title">Arquitectura AA4</span>
+                    <ul class="nav-menu">
+                        <li class="nav-menu-item">
+                            <a href="#patrones-section" class="nav-menu-link">
+                                <i class="bi bi-diagram-3-fill"></i>
+                                <span>Patrones de Diseño</span>
+                            </a>
+                        </li>
+                        <li class="nav-menu-item">
+                            <a href="/demos" class="nav-menu-link">
+                                <i class="bi bi-play-circle-fill"></i>
+                                <span>Demos en Vivo</span>
+                                <span class="badge-nav" style="background: linear-gradient(135deg, #f59e0b, #ef4444);">LIVE</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="nav-section">
+                    <span class="nav-section-title">Base de Datos</span>
+                    <ul class="nav-menu">
+                        <li class="nav-menu-item">
+                            <a href="/h2-console" target="_blank" class="nav-menu-link">
+                                <i class="bi bi-database-fill"></i>
+                                <span>Consola H2</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="user-profile">
+                    <div class="user-avatar">AD</div>
+                    <div class="user-info">
+                        <h4>Administrador</h4>
+                        <span>admin@billeteseguro.com</span>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- MAIN CONTENT WRAPPER -->
+        <div class="main-wrapper">
+
+            <!-- TOP HEADER -->
+            <header class="top-header">
+                <div class="header-left">
+                    <div class="page-title-header">
+                        <h2><i class="bi bi-grid-1x2-fill"></i> Dashboard</h2>
+                        <p>Panel de control del sistema bancario</p>
+                    </div>
+                </div>
+                <div class="header-right">
+                    <div class="current-date">
+                        <i class="bi bi-calendar3"></i>
+                        <span id="currentDate"></span>
+                    </div>
+                    <div class="notification-wrapper">
+                        <button class="header-btn" onclick="toggleNotifications()">
+                            <i class="bi bi-bell-fill"></i>
+                            <span class="notification-badge" id="notifBadge">0</span>
+                        </button>
+                        <div class="notification-dropdown" id="notificationDropdown">
+                            <div class="notification-header">
+                                <h4><i class="bi bi-bell-fill"></i> Notificaciones</h4>
+                                <button class="btn-clear" onclick="clearNotifications()">Limpiar</button>
+                            </div>
+                            <div class="notification-list" id="notificationList">
+                                <div class="notification-empty">
+                                    <i class="bi bi-inbox"></i>
+                                    <p>No hay notificaciones</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="header-btn">
+                        <i class="bi bi-gear-fill"></i>
+                    </button>
+                </div>
+            </header>
+
+            <!-- MAIN CONTENT -->
+            <main class="main-content">
+
+                <!-- STATISTICS CARDS -->
+                <div class="stats-grid">
+                    <div class="stat-card primary fade-in">
+                        <div class="stat-header">
+                            <div class="stat-icon">
+                                <i class="bi bi-wallet2"></i>
+                            </div>
+                            <div class="stat-trend up">
+                                <i class="bi bi-arrow-up"></i> 12%
+                            </div>
+                        </div>
+                        <div class="stat-value" th:text="${totalCuentas}">0</div>
+                        <div class="stat-label">Cuentas Registradas</div>
+                    </div>
+
+                    <div class="stat-card success fade-in">
+                        <div class="stat-header">
+                            <div class="stat-icon">
+                                <i class="bi bi-check-circle-fill"></i>
+                            </div>
+                            <div class="stat-trend up">
+                                <i class="bi bi-arrow-up"></i> 8%
+                            </div>
+                        </div>
+                        <div class="stat-value" th:text="${cuentasActivas}">0</div>
+                        <div class="stat-label">Cuentas Activas</div>
+                    </div>
+
+                    <div class="stat-card warning fade-in">
+                        <div class="stat-header">
+                            <div class="stat-icon">
+                                <i class="bi bi-cash-stack"></i>
+                            </div>
+                            <div class="stat-trend up">
+                                <i class="bi bi-arrow-up"></i> 23%
+                            </div>
+                        </div>
+                        <div class="stat-value" th:text="'S/. ' + ${#numbers.formatDecimal(saldoTotal, 1, 2)}">S/. 0.00</div>
+                        <div class="stat-label">Capital Total</div>
+                    </div>
+
+                    <div class="stat-card info fade-in">
+                        <div class="stat-header">
+                            <div class="stat-icon">
+                                <i class="bi bi-arrow-left-right"></i>
+                            </div>
+                            <div class="stat-trend up">
+                                <i class="bi bi-arrow-up"></i> 15%
+                            </div>
+                        </div>
+                        <div class="stat-value" th:text="${totalMovimientos}">0</div>
+                        <div class="stat-label">Transacciones Totales</div>
+                    </div>
+                </div>
+
+                <!-- CHARTS SECTION - Real-time Analytics -->
+                <div class="grid-2 mb-4">
+                    <!-- Transacciones por Mes -->
+                    <div class="content-card">
+                        <div class="card-header">
+                            <div class="card-header-left">
+                                <div class="card-icon primary">
+                                    <i class="bi bi-bar-chart-fill"></i>
+                                </div>
+                                <div>
+                                    <div class="card-title">Transacciones por Mes</div>
+                                    <div class="card-subtitle">Depositos, Retiros y Transferencias</div>
+                                </div>
+                            </div>
+                            <div class="live-indicator">
+                                <span class="live-dot"></span>
+                                En vivo
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="chart-container">
+                                <canvas id="chartTransaccionesMes"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Actividad Ultimos 7 Dias -->
+                    <div class="content-card">
+                        <div class="card-header">
+                            <div class="card-header-left">
+                                <div class="card-icon success">
+                                    <i class="bi bi-graph-up"></i>
+                                </div>
+                                <div>
+                                    <div class="card-title">Actividad Semanal</div>
+                                    <div class="card-subtitle">Transacciones ultimos 7 dias</div>
+                                </div>
+                            </div>
+                            <div class="live-indicator">
+                                <span class="live-dot"></span>
+                                Actualizado
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="chart-container">
+                                <canvas id="chartActividadSemanal"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CHARTS ROW 2 -->
+                <div class="grid-2-1 mb-4">
+                    <!-- Ultimos Movimientos en Tiempo Real -->
+                    <div class="content-card">
+                        <div class="card-header">
+                            <div class="card-header-left">
+                                <div class="card-icon warning">
+                                    <i class="bi bi-activity"></i>
+                                </div>
+                                <div>
+                                    <div class="card-title">Actividad Reciente</div>
+                                    <div class="card-subtitle" id="activityCount">Ultimas transacciones del sistema</div>
+                                </div>
+                            </div>
+                            <button class="btn btn-outline btn-sm" onclick="cargarUltimosMovimientos()">
+                                <i class="bi bi-arrow-clockwise"></i> Actualizar
+                            </button>
+                        </div>
+                        <div class="card-body" style="max-height: 350px; overflow-y: auto;">
+                            <div id="activityFeed">
+                                <div class="empty-state" style="padding: 2rem;">
+                                    <i class="bi bi-hourglass-split"></i>
+                                    <p>Cargando actividad...</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Distribucion de Tipos -->
+                    <div class="content-card">
+                        <div class="card-header">
+                            <div class="card-header-left">
+                                <div class="card-icon purple">
+                                    <i class="bi bi-pie-chart-fill"></i>
+                                </div>
+                                <div>
+                                    <div class="card-title">Distribucion</div>
+                                    <div class="card-subtitle">Por tipo de operacion</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="chart-container-small">
+                                <canvas id="chartTiposMovimiento"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- MAIN GRID -->
+                <div class="grid-2 mb-4">
+                    <!-- Quick Actions -->
+                    <div class="content-card">
+                        <div class="card-header">
+                            <div class="card-header-left">
+                                <div class="card-icon primary">
+                                    <i class="bi bi-lightning-charge-fill"></i>
+                                </div>
+                                <div>
+                                    <div class="card-title">Acciones Rapidas</div>
+                                    <div class="card-subtitle">Operaciones frecuentes</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="quick-actions">
+                                <a href="/cuentas" class="quick-action-btn">
+                                    <i class="bi bi-plus-circle-fill"></i>
+                                    <span>Nueva Cuenta</span>
+                                </a>
+                                <a href="/operaciones" class="quick-action-btn">
+                                    <i class="bi bi-box-arrow-in-down"></i>
+                                    <span>Depositar</span>
+                                </a>
+                                <a href="/operaciones" class="quick-action-btn">
+                                    <i class="bi bi-box-arrow-up"></i>
+                                    <span>Retirar</span>
+                                </a>
+                                <a href="/operaciones" class="quick-action-btn">
+                                    <i class="bi bi-send-fill"></i>
+                                    <span>Transferir</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tech Stack & JPA -->
+                    <div class="content-card">
+                        <div class="card-header">
+                            <div class="card-header-left">
+                                <div class="card-icon purple">
+                                    <i class="bi bi-code-slash"></i>
+                                </div>
+                                <div>
+                                    <div class="card-title">Tecnologias Implementadas</div>
+                                    <div class="card-subtitle">Spring Data JPA + Hibernate</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="tech-stack mb-4">
+                                <span class="tech-badge"><i class="bi bi-box-fill"></i> Spring Boot 3.2</span>
+                                <span class="tech-badge"><i class="bi bi-database-fill"></i> Spring Data JPA</span>
+                                <span class="tech-badge"><i class="bi bi-layers-fill"></i> Hibernate ORM</span>
+                                <span class="tech-badge"><i class="bi bi-hdd-fill"></i> H2 Database</span>
+                                <span class="tech-badge"><i class="bi bi-braces"></i> REST API</span>
+                                <span class="tech-badge"><i class="bi bi-file-code-fill"></i> Thymeleaf</span>
+                            </div>
+
+                            <!-- JPA Relationship Visualization -->
+                            <div class="jpa-visual">
+                                <div class="jpa-visual-title">Relacion JPA: @OneToMany / @ManyToOne</div>
+                                <div class="jpa-entities">
+                                    <div class="jpa-entity">
+                                        <i class="bi bi-wallet2"></i> CUENTA
+                                    </div>
+                                    <div class="jpa-relation">
+                                        <span>1</span>
+                                        <i class="bi bi-arrow-left-right"></i>
+                                        <span>N</span>
+                                    </div>
+                                    <div class="jpa-entity">
+                                        <i class="bi bi-receipt"></i> MOVIMIENTO
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- DATABASE INFO & RECENT ACCOUNTS -->
+                <div class="grid-2-1 mb-4">
+                    <!-- Recent Accounts Table -->
+                    <div class="content-card">
+                        <div class="card-header">
+                            <div class="card-header-left">
+                                <div class="card-icon success">
+                                    <i class="bi bi-people-fill"></i>
+                                </div>
+                                <div>
+                                    <div class="card-title">Cuentas Recientes</div>
+                                    <div class="card-subtitle" th:text="${totalCuentas} + ' cuentas en el sistema'">0 cuentas</div>
+                                </div>
+                            </div>
+                            <a href="/cuentas" class="btn btn-outline btn-sm">
+                                <i class="bi bi-arrow-right"></i> Ver Todas
+                            </a>
+                        </div>
+                        <div class="card-body no-padding">
+                            <div class="table-wrapper">
+                                <table class="data-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Numero</th>
+                                            <th>Titular</th>
+                                            <th>Tipo</th>
+                                            <th>Saldo</th>
+                                            <th>Estado</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr th:each="cuenta : ${cuentas}">
+                                            <td>
+                                                <strong class="text-primary" th:text="${cuenta.numeroCuenta}"></strong>
+                                            </td>
+                                            <td>
+                                                <div class="d-flex align-center gap-2">
+                                                    <div class="user-avatar" style="width:34px;height:34px;font-size:0.7rem;border-radius:8px;"
+                                                         th:text="${#strings.substring(cuenta.titular, 0, 2).toUpperCase()}"></div>
+                                                    <span th:text="${cuenta.titular}"></span>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <span class="badge"
+                                                      th:classappend="${cuenta.tipoCuenta.toString() == 'AHORRO'} ? 'badge-info' : 'badge-purple'"
+                                                      th:text="${cuenta.tipoCuenta}"></span>
+                                            </td>
+                                            <td>
+                                                <strong class="text-success"
+                                                        th:text="'S/. ' + ${#numbers.formatDecimal(cuenta.saldo, 1, 2)}"></strong>
+                                            </td>
+                                            <td>
+                                                <span class="badge"
+                                                      th:classappend="${cuenta.estado.toString() == 'ACTIVA'} ? 'badge-success' : 'badge-danger'"
+                                                      th:text="${cuenta.estado}"></span>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <div th:if="${#lists.isEmpty(cuentas)}" class="empty-state">
+                                <i class="bi bi-inbox-fill"></i>
+                                <h4>No hay cuentas registradas</h4>
+                                <p>Crea tu primera cuenta bancaria para comenzar a operar</p>
+                                <a href="/cuentas" class="btn btn-primary mt-3">
+                                    <i class="bi bi-plus-circle"></i> Crear Cuenta
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Database Stats & Account Types Chart -->
+                    <div class="content-card">
+                        <div class="card-header">
+                            <div class="card-header-left">
+                                <div class="card-icon info">
+                                    <i class="bi bi-database-fill-gear"></i>
+                                </div>
+                                <div>
+                                    <div class="card-title">Tipos de Cuenta</div>
+                                    <div class="card-subtitle">Distribucion Ahorro vs Corriente</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="chart-container-small mb-3">
+                                <canvas id="chartTiposCuenta"></canvas>
+                            </div>
+
+                            <div class="db-stats-grid mb-3">
+                                <div class="db-stat-item">
+                                    <div class="db-stat-value" th:text="${totalCuentas}">0</div>
+                                    <div class="db-stat-label">Total Cuentas</div>
+                                </div>
+                                <div class="db-stat-item">
+                                    <div class="db-stat-value" th:text="${totalMovimientos}">0</div>
+                                    <div class="db-stat-label">Movimientos</div>
+                                </div>
+                            </div>
+
+                            <div class="alert alert-success mb-3">
+                                <i class="bi bi-check-circle-fill"></i>
+                                <div>
+                                    <strong>Persistencia Activa</strong>
+                                    <p class="mb-0" style="font-size:0.8rem;opacity:0.85;margin-top:2px;">
+                                        Spring Data JPA + H2 File
+                                    </p>
+                                </div>
+                            </div>
+
+                            <a href="/h2-console" target="_blank" class="btn btn-outline btn-block">
+                                <i class="bi bi-terminal-fill"></i> Abrir Consola H2
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ============================================== -->
+                <!-- SECCION: PATRONES DE DISEÑO AA4 (NUEVA)       -->
+                <!-- ============================================== -->
+                <div id="patrones-section" class="mb-4" style="scroll-margin-top: 80px;">
+
+                    <!-- Header de la seccion -->
+                    <div class="content-card mb-4" style="background: linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(139, 92, 246, 0.15)); border: 1px solid rgba(139, 92, 246, 0.3);">
+                        <div class="card-body" style="text-align: center; padding: 2rem;">
+                            <div style="display: inline-flex; align-items: center; gap: 12px; margin-bottom: 1rem;">
+                                <i class="bi bi-diagram-3-fill" style="font-size: 2.5rem; color: var(--primary);"></i>
+                                <div style="text-align: left;">
+                                    <h2 style="margin: 0; font-size: 1.8rem; color: var(--text-primary);">Patrones de Diseño Implementados</h2>
+                                    <p style="margin: 0; color: var(--text-muted); font-size: 0.95rem;">Actividad Aprendizaje 4 - Arquitectura de Software</p>
+                                </div>
+                            </div>
+                            <div style="display: flex; justify-content: center; gap: 1.5rem; flex-wrap: wrap; margin-top: 1rem;">
+                                <div style="text-align: center;">
+                                    <div style="font-size: 2rem; font-weight: bold; color: var(--success);">5</div>
+                                    <div style="font-size: 0.8rem; color: var(--text-muted);">SOLID</div>
+                                </div>
+                                <div style="text-align: center;">
+                                    <div style="font-size: 2rem; font-weight: bold; color: var(--primary);">3</div>
+                                    <div style="font-size: 0.8rem; color: var(--text-muted);">Creacionales</div>
+                                </div>
+                                <div style="text-align: center;">
+                                    <div style="font-size: 2rem; font-weight: bold; color: var(--warning);">3</div>
+                                    <div style="font-size: 0.8rem; color: var(--text-muted);">Comportamiento</div>
+                                </div>
+                                <div style="text-align: center;">
+                                    <div style="font-size: 2rem; font-weight: bold; color: var(--info);">5</div>
+                                    <div style="font-size: 0.8rem; color: var(--text-muted);">Microservicios</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SOLID Principles -->
+                    <div class="content-card mb-4">
+                        <div class="card-header">
+                            <div class="card-header-left">
+                                <div class="card-icon" style="background: rgba(16, 185, 129, 0.15); color: var(--success);">
+                                    <i class="bi bi-check-circle-fill"></i>
+                                </div>
+                                <div>
+                                    <div class="card-title">Principios SOLID</div>
+                                    <div class="card-subtitle">5 principios de diseño orientado a objetos</div>
+                                </div>
+                            </div>
+                            <span class="badge badge-success">5/5 Implementados</span>
+                        </div>
+                        <div class="card-body">
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                                <div class="pattern-card" style="background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.2); border-radius: 12px; padding: 1rem;">
+                                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+                                        <span style="width: 32px; height: 32px; background: var(--success); color: white; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: bold;">S</span>
+                                        <strong style="color: var(--text-primary);">Single Responsibility</strong>
+                                    </div>
+                                    <p style="font-size: 0.8rem; color: var(--text-muted); margin: 0;">Cada clase tiene una unica responsabilidad</p>
+                                    <code style="font-size: 0.7rem; color: var(--success); display: block; margin-top: 8px;">BancoService, CuentaFactory</code>
+                                </div>
+
+                                <div class="pattern-card" style="background: rgba(59, 130, 246, 0.08); border: 1px solid rgba(59, 130, 246, 0.2); border-radius: 12px; padding: 1rem;">
+                                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+                                        <span style="width: 32px; height: 32px; background: var(--primary); color: white; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: bold;">O</span>
+                                        <strong style="color: var(--text-primary);">Open/Closed</strong>
+                                    </div>
+                                    <p style="font-size: 0.8rem; color: var(--text-muted); margin: 0;">Abierto a extension, cerrado a modificacion</p>
+                                    <code style="font-size: 0.7rem; color: var(--primary); display: block; margin-top: 8px;">InteresStrategy implementations</code>
+                                </div>
+
+                                <div class="pattern-card" style="background: rgba(139, 92, 246, 0.08); border: 1px solid rgba(139, 92, 246, 0.2); border-radius: 12px; padding: 1rem;">
+                                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+                                        <span style="width: 32px; height: 32px; background: #8b5cf6; color: white; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: bold;">L</span>
+                                        <strong style="color: var(--text-primary);">Liskov Substitution</strong>
+                                    </div>
+                                    <p style="font-size: 0.8rem; color: var(--text-muted); margin: 0;">Subtipos sustituibles por sus tipos base</p>
+                                    <code style="font-size: 0.7rem; color: #8b5cf6; display: block; margin-top: 8px;">ServicioBancario interface</code>
+                                </div>
+
+                                <div class="pattern-card" style="background: rgba(245, 158, 11, 0.08); border: 1px solid rgba(245, 158, 11, 0.2); border-radius: 12px; padding: 1rem;">
+                                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+                                        <span style="width: 32px; height: 32px; background: var(--warning); color: white; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: bold;">I</span>
+                                        <strong style="color: var(--text-primary);">Interface Segregation</strong>
+                                    </div>
+                                    <p style="font-size: 0.8rem; color: var(--text-muted); margin: 0;">Interfaces especificas, no generales</p>
+                                    <code style="font-size: 0.7rem; color: var(--warning); display: block; margin-top: 8px;">OperacionesLectura, OperacionesEscritura</code>
+                                </div>
+
+                                <div class="pattern-card" style="background: rgba(6, 182, 212, 0.08); border: 1px solid rgba(6, 182, 212, 0.2); border-radius: 12px; padding: 1rem;">
+                                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+                                        <span style="width: 32px; height: 32px; background: var(--info); color: white; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: bold;">D</span>
+                                        <strong style="color: var(--text-primary);">Dependency Inversion</strong>
+                                    </div>
+                                    <p style="font-size: 0.8rem; color: var(--text-muted); margin: 0;">Depender de abstracciones, no implementaciones</p>
+                                    <code style="font-size: 0.7rem; color: var(--info); display: block; margin-top: 8px;">@Autowired + Interfaces</code>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Patrones Grid: Creacionales + Comportamiento -->
+                    <div class="grid-2 mb-4">
+
+                        <!-- Patrones Creacionales -->
+                        <div class="content-card">
+                            <div class="card-header">
+                                <div class="card-header-left">
+                                    <div class="card-icon" style="background: rgba(59, 130, 246, 0.15); color: var(--primary);">
+                                        <i class="bi bi-boxes"></i>
+                                    </div>
+                                    <div>
+                                        <div class="card-title">Patrones Creacionales</div>
+                                        <div class="card-subtitle">Creacion de objetos</div>
+                                    </div>
+                                </div>
+                                <span class="badge badge-primary">3 Patrones</span>
+                            </div>
+                            <div class="card-body">
+                                <div style="display: flex; flex-direction: column; gap: 1rem;">
+
+                                    <div style="display: flex; align-items: flex-start; gap: 12px; padding: 12px; background: rgba(59, 130, 246, 0.05); border-radius: 10px;">
+                                        <div style="width: 40px; height: 40px; background: linear-gradient(135deg, #3b82f6, #2563eb); border-radius: 10px; display: flex; align-items: center; justify-content: center;">
+                                            <i class="bi bi-building" style="color: white; font-size: 1.1rem;"></i>
+                                        </div>
+                                        <div style="flex: 1;">
+                                            <strong style="color: var(--text-primary);">Factory Method</strong>
+                                            <p style="font-size: 0.8rem; color: var(--text-muted); margin: 4px 0;">Crea cuentas segun tipo (AHORRO, CORRIENTE, PLAZO_FIJO, SUELDO)</p>
+                                            <code style="font-size: 0.75rem; background: rgba(59, 130, 246, 0.1); padding: 2px 8px; border-radius: 4px; color: var(--primary);">CuentaFactory.java</code>
+                                        </div>
+                                    </div>
+
+                                    <div style="display: flex; align-items: flex-start; gap: 12px; padding: 12px; background: rgba(139, 92, 246, 0.05); border-radius: 10px;">
+                                        <div style="width: 40px; height: 40px; background: linear-gradient(135deg, #8b5cf6, #7c3aed); border-radius: 10px; display: flex; align-items: center; justify-content: center;">
+                                            <i class="bi bi-bricks" style="color: white; font-size: 1.1rem;"></i>
+                                        </div>
+                                        <div style="flex: 1;">
+                                            <strong style="color: var(--text-primary);">Builder</strong>
+                                            <p style="font-size: 0.8rem; color: var(--text-muted); margin: 4px 0;">Construye movimientos paso a paso con API fluida</p>
+                                            <code style="font-size: 0.75rem; background: rgba(139, 92, 246, 0.1); padding: 2px 8px; border-radius: 4px; color: #8b5cf6;">MovimientoBuilder.java</code>
+                                        </div>
+                                    </div>
+
+                                    <div style="display: flex; align-items: flex-start; gap: 12px; padding: 12px; background: rgba(16, 185, 129, 0.05); border-radius: 10px;">
+                                        <div style="width: 40px; height: 40px; background: linear-gradient(135deg, #10b981, #059669); border-radius: 10px; display: flex; align-items: center; justify-content: center;">
+                                            <i class="bi bi-1-circle-fill" style="color: white; font-size: 1.1rem;"></i>
+                                        </div>
+                                        <div style="flex: 1;">
+                                            <strong style="color: var(--text-primary);">Singleton</strong>
+                                            <p style="font-size: 0.8rem; color: var(--text-muted); margin: 4px 0;">Una sola instancia de servicios (@Service de Spring)</p>
+                                            <code style="font-size: 0.75rem; background: rgba(16, 185, 129, 0.1); padding: 2px 8px; border-radius: 4px; color: var(--success);">ServiceLocator.java</code>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Patrones de Comportamiento -->
+                        <div class="content-card">
+                            <div class="card-header">
+                                <div class="card-header-left">
+                                    <div class="card-icon" style="background: rgba(245, 158, 11, 0.15); color: var(--warning);">
+                                        <i class="bi bi-gear-wide-connected"></i>
+                                    </div>
+                                    <div>
+                                        <div class="card-title">Patrones de Comportamiento</div>
+                                        <div class="card-subtitle">Comunicacion entre objetos</div>
+                                    </div>
+                                </div>
+                                <span class="badge badge-warning">3 Patrones</span>
+                            </div>
+                            <div class="card-body">
+                                <div style="display: flex; flex-direction: column; gap: 1rem;">
+
+                                    <div style="display: flex; align-items: flex-start; gap: 12px; padding: 12px; background: rgba(245, 158, 11, 0.05); border-radius: 10px;">
+                                        <div style="width: 40px; height: 40px; background: linear-gradient(135deg, #f59e0b, #d97706); border-radius: 10px; display: flex; align-items: center; justify-content: center;">
+                                            <i class="bi bi-shuffle" style="color: white; font-size: 1.1rem;"></i>
+                                        </div>
+                                        <div style="flex: 1;">
+                                            <strong style="color: var(--text-primary);">Strategy</strong>
+                                            <p style="font-size: 0.8rem; color: var(--text-muted); margin: 4px 0;">Algoritmos intercambiables de calculo de interes (3%, 0%, 8%)</p>
+                                            <code style="font-size: 0.75rem; background: rgba(245, 158, 11, 0.1); padding: 2px 8px; border-radius: 4px; color: var(--warning);">InteresStrategy.java</code>
+                                        </div>
+                                    </div>
+
+                                    <div style="display: flex; align-items: flex-start; gap: 12px; padding: 12px; background: rgba(239, 68, 68, 0.05); border-radius: 10px;">
+                                        <div style="width: 40px; height: 40px; background: linear-gradient(135deg, #ef4444, #dc2626); border-radius: 10px; display: flex; align-items: center; justify-content: center;">
+                                            <i class="bi bi-eye-fill" style="color: white; font-size: 1.1rem;"></i>
+                                        </div>
+                                        <div style="flex: 1;">
+                                            <strong style="color: var(--text-primary);">Observer</strong>
+                                            <p style="font-size: 0.8rem; color: var(--text-muted); margin: 4px 0;">Notifica movimientos a: Notificacion, Auditoria, Fraude</p>
+                                            <code style="font-size: 0.75rem; background: rgba(239, 68, 68, 0.1); padding: 2px 8px; border-radius: 4px; color: var(--danger);">MovimientoSubject.java</code>
+                                        </div>
+                                    </div>
+
+                                    <div style="display: flex; align-items: flex-start; gap: 12px; padding: 12px; background: rgba(6, 182, 212, 0.05); border-radius: 10px;">
+                                        <div style="width: 40px; height: 40px; background: linear-gradient(135deg, #06b6d4, #0891b2); border-radius: 10px; display: flex; align-items: center; justify-content: center;">
+                                            <i class="bi bi-list-task" style="color: white; font-size: 1.1rem;"></i>
+                                        </div>
+                                        <div style="flex: 1;">
+                                            <strong style="color: var(--text-primary);">Template Method</strong>
+                                            <p style="font-size: 0.8rem; color: var(--text-muted); margin: 4px 0;">Estructura comun para depositos y retiros</p>
+                                            <code style="font-size: 0.75rem; background: rgba(6, 182, 212, 0.1); padding: 2px 8px; border-radius: 4px; color: var(--info);">OperacionBancariaTemplate.java</code>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Patrones de Microservicios -->
+                    <div class="content-card mb-4">
+                        <div class="card-header">
+                            <div class="card-header-left">
+                                <div class="card-icon" style="background: rgba(6, 182, 212, 0.15); color: var(--info);">
+                                    <i class="bi bi-cloud-fill"></i>
+                                </div>
+                                <div>
+                                    <div class="card-title">Patrones de Microservicios</div>
+                                    <div class="card-subtitle">Arquitectura distribuida y resiliencia</div>
+                                </div>
+                            </div>
+                            <span class="badge badge-info">5 Patrones</span>
+                        </div>
+                        <div class="card-body">
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem;">
+
+                                <div style="text-align: center; padding: 1.25rem; background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(59, 130, 246, 0.05)); border: 1px solid rgba(59, 130, 246, 0.2); border-radius: 12px;">
+                                    <div style="width: 50px; height: 50px; margin: 0 auto 10px; background: linear-gradient(135deg, #3b82f6, #2563eb); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                                        <i class="bi bi-door-open-fill" style="color: white; font-size: 1.3rem;"></i>
+                                    </div>
+                                    <strong style="color: var(--text-primary); display: block; margin-bottom: 4px;">API Gateway</strong>
+                                    <p style="font-size: 0.75rem; color: var(--text-muted); margin: 0;">Punto de entrada centralizado</p>
+                                    <code style="font-size: 0.7rem; color: var(--primary);">/api/*</code>
+                                </div>
+
+                                <div style="text-align: center; padding: 1.25rem; background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(139, 92, 246, 0.05)); border: 1px solid rgba(139, 92, 246, 0.2); border-radius: 12px;">
+                                    <div style="width: 50px; height: 50px; margin: 0 auto 10px; background: linear-gradient(135deg, #8b5cf6, #7c3aed); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                                        <i class="bi bi-file-earmark-code-fill" style="color: white; font-size: 1.3rem;"></i>
+                                    </div>
+                                    <strong style="color: var(--text-primary); display: block; margin-bottom: 4px;">DTO Pattern</strong>
+                                    <p style="font-size: 0.75rem; color: var(--text-muted); margin: 0;">Respuestas estandarizadas</p>
+                                    <code style="font-size: 0.7rem; color: #8b5cf6;">ApiResponse&lt;T&gt;</code>
+                                </div>
+
+                                <div style="text-align: center; padding: 1.25rem; background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(239, 68, 68, 0.05)); border: 1px solid rgba(239, 68, 68, 0.2); border-radius: 12px;">
+                                    <div style="width: 50px; height: 50px; margin: 0 auto 10px; background: linear-gradient(135deg, #ef4444, #dc2626); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                                        <i class="bi bi-lightning-charge-fill" style="color: white; font-size: 1.3rem;"></i>
+                                    </div>
+                                    <strong style="color: var(--text-primary); display: block; margin-bottom: 4px;">Circuit Breaker</strong>
+                                    <p style="font-size: 0.75rem; color: var(--text-muted); margin: 0;">Previene fallas en cascada</p>
+                                    <code style="font-size: 0.7rem; color: var(--danger);">5 fallos = ABIERTO</code>
+                                </div>
+
+                                <div style="text-align: center; padding: 1.25rem; background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(245, 158, 11, 0.05)); border: 1px solid rgba(245, 158, 11, 0.2); border-radius: 12px;">
+                                    <div style="width: 50px; height: 50px; margin: 0 auto 10px; background: linear-gradient(135deg, #f59e0b, #d97706); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                                        <i class="bi bi-speedometer2" style="color: white; font-size: 1.3rem;"></i>
+                                    </div>
+                                    <strong style="color: var(--text-primary); display: block; margin-bottom: 4px;">Rate Limiter</strong>
+                                    <p style="font-size: 0.75rem; color: var(--text-muted); margin: 0;">Controla solicitudes</p>
+                                    <code style="font-size: 0.7rem; color: var(--warning);">100 req/min</code>
+                                </div>
+
+                                <div style="text-align: center; padding: 1.25rem; background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(16, 185, 129, 0.05)); border: 1px solid rgba(16, 185, 129, 0.2); border-radius: 12px;">
+                                    <div style="width: 50px; height: 50px; margin: 0 auto 10px; background: linear-gradient(135deg, #10b981, #059669); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                                        <i class="bi bi-heart-pulse-fill" style="color: white; font-size: 1.3rem;"></i>
+                                    </div>
+                                    <strong style="color: var(--text-primary); display: block; margin-bottom: 4px;">Health Check</strong>
+                                    <p style="font-size: 0.75rem; color: var(--text-muted); margin: 0;">Monitoreo del sistema</p>
+                                    <code style="font-size: 0.7rem; color: var(--success);">/health/*</code>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- API Endpoints de Demo -->
+                    <div class="content-card">
+                        <div class="card-header">
+                            <div class="card-header-left">
+                                <div class="card-icon purple">
+                                    <i class="bi bi-terminal-fill"></i>
+                                </div>
+                                <div>
+                                    <div class="card-title">API Endpoints de Demostracion</div>
+                                    <div class="card-subtitle">Prueba los patrones en vivo</div>
+                                </div>
+                            </div>
+                            <a href="/api/patrones" target="_blank" class="btn btn-primary btn-sm">
+                                <i class="bi bi-box-arrow-up-right"></i> Abrir API
+                            </a>
+                        </div>
+                        <div class="card-body">
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 0.75rem;">
+                                <a href="/api/patrones" target="_blank" class="api-link" style="display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); border-radius: 8px; text-decoration: none; transition: all 0.2s;">
+                                    <span class="badge badge-success" style="font-size: 0.7rem;">GET</span>
+                                    <code style="color: var(--text-primary); font-size: 0.85rem;">/api/patrones</code>
+                                    <span style="margin-left: auto; font-size: 0.75rem; color: var(--text-muted);">Resumen completo</span>
+                                </a>
+                                <a href="/api/patrones/demo/factory" target="_blank" class="api-link" style="display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); border-radius: 8px; text-decoration: none; transition: all 0.2s;">
+                                    <span class="badge badge-success" style="font-size: 0.7rem;">GET</span>
+                                    <code style="color: var(--text-primary); font-size: 0.85rem;">/api/patrones/demo/factory</code>
+                                    <span style="margin-left: auto; font-size: 0.75rem; color: var(--text-muted);">Factory Method</span>
+                                </a>
+                                <a href="/api/patrones/demo/builder" target="_blank" class="api-link" style="display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); border-radius: 8px; text-decoration: none; transition: all 0.2s;">
+                                    <span class="badge badge-success" style="font-size: 0.7rem;">GET</span>
+                                    <code style="color: var(--text-primary); font-size: 0.85rem;">/api/patrones/demo/builder</code>
+                                    <span style="margin-left: auto; font-size: 0.75rem; color: var(--text-muted);">Builder</span>
+                                </a>
+                                <a href="/api/patrones/demo/strategy" target="_blank" class="api-link" style="display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); border-radius: 8px; text-decoration: none; transition: all 0.2s;">
+                                    <span class="badge badge-success" style="font-size: 0.7rem;">GET</span>
+                                    <code style="color: var(--text-primary); font-size: 0.85rem;">/api/patrones/demo/strategy</code>
+                                    <span style="margin-left: auto; font-size: 0.75rem; color: var(--text-muted);">Strategy</span>
+                                </a>
+                                <a href="/api/patrones/demo/template" target="_blank" class="api-link" style="display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); border-radius: 8px; text-decoration: none; transition: all 0.2s;">
+                                    <span class="badge badge-success" style="font-size: 0.7rem;">GET</span>
+                                    <code style="color: var(--text-primary); font-size: 0.85rem;">/api/patrones/demo/template</code>
+                                    <span style="margin-left: auto; font-size: 0.75rem; color: var(--text-muted);">Template Method</span>
+                                </a>
+                                <a href="/api/patrones/solid" target="_blank" class="api-link" style="display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); border-radius: 8px; text-decoration: none; transition: all 0.2s;">
+                                    <span class="badge badge-success" style="font-size: 0.7rem;">GET</span>
+                                    <code style="color: var(--text-primary); font-size: 0.85rem;">/api/patrones/solid</code>
+                                    <span style="margin-left: auto; font-size: 0.75rem; color: var(--text-muted);">SOLID Principios</span>
+                                </a>
+                                <a href="/health" target="_blank" class="api-link" style="display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); border-radius: 8px; text-decoration: none; transition: all 0.2s;">
+                                    <span class="badge badge-success" style="font-size: 0.7rem;">GET</span>
+                                    <code style="color: var(--text-primary); font-size: 0.85rem;">/health</code>
+                                    <span style="margin-left: auto; font-size: 0.75rem; color: var(--text-muted);">Health Check</span>
+                                </a>
+                                <a href="/api/patrones/demo/circuit-breaker" target="_blank" class="api-link" style="display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); border-radius: 8px; text-decoration: none; transition: all 0.2s;">
+                                    <span class="badge badge-success" style="font-size: 0.7rem;">GET</span>
+                                    <code style="color: var(--text-primary); font-size: 0.85rem;">/api/patrones/demo/circuit-breaker</code>
+                                    <span style="margin-left: auto; font-size: 0.75rem; color: var(--text-muted);">Circuit Breaker</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                <!-- FIN SECCION PATRONES DE DISEÑO -->
+
+            </main>
+
+            <!-- FOOTER -->
+            <footer class="main-footer">
+                <div>
+                    <i class="bi bi-shield-check"></i> BilleteSeguro &copy; 2024 - Sistema Bancario con Spring Data JPA
+                </div>
+                <div class="footer-links">
+                    <a href="/cuentas">Cuentas</a>
+                    <a href="/operaciones">Operaciones</a>
+                    <a href="/movimientos">Movimientos</a>
+                    <a href="/h2-console" target="_blank">Base de Datos</a>
+                </div>
+            </footer>
+
+        </div>
+    </div>
+
+    <script>
+        const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+        document.getElementById('currentDate').textContent =
+            new Date().toLocaleDateString('es-PE', options);
+
+        // Chart.js Configuration
+        Chart.defaults.color = '#a3a3a3';
+        Chart.defaults.borderColor = 'rgba(255, 255, 255, 0.1)';
+        Chart.defaults.font.family = "'Segoe UI', 'Inter', sans-serif";
+
+        let chartTransaccionesMes, chartActividadSemanal, chartTiposMovimiento, chartTiposCuenta;
+
+        // Load Charts on Page Load
+        document.addEventListener('DOMContentLoaded', function() {
+            cargarChartTransaccionesMes();
+            cargarChartActividadSemanal();
+            cargarChartTiposMovimiento();
+            cargarChartTiposCuenta();
+            cargarUltimosMovimientos();
+
+            // Auto-refresh every 30 seconds
+            setInterval(() => {
+                cargarChartTransaccionesMes();
+                cargarChartActividadSemanal();
+                cargarChartTiposMovimiento();
+                cargarChartTiposCuenta();
+                cargarUltimosMovimientos();
+            }, 30000);
+        });
+
+        async function cargarChartTransaccionesMes() {
+            try {
+                const response = await fetch('/api/estadisticas/movimientos-por-mes');
+                const data = await response.json();
+
+                const ctx = document.getElementById('chartTransaccionesMes').getContext('2d');
+
+                if (chartTransaccionesMes) {
+                    chartTransaccionesMes.destroy();
+                }
+
+                chartTransaccionesMes = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: data.labels,
+                        datasets: [
+                            {
+                                label: 'Depositos',
+                                data: data.depositos,
+                                backgroundColor: 'rgba(16, 185, 129, 0.8)',
+                                borderColor: 'rgba(16, 185, 129, 1)',
+                                borderWidth: 1,
+                                borderRadius: 6,
+                                barPercentage: 0.6
+                            },
+                            {
+                                label: 'Retiros',
+                                data: data.retiros,
+                                backgroundColor: 'rgba(245, 158, 11, 0.8)',
+                                borderColor: 'rgba(245, 158, 11, 1)',
+                                borderWidth: 1,
+                                borderRadius: 6,
+                                barPercentage: 0.6
+                            },
+                            {
+                                label: 'Transferencias',
+                                data: data.transferencias,
+                                backgroundColor: 'rgba(239, 68, 68, 0.8)',
+                                borderColor: 'rgba(239, 68, 68, 1)',
+                                borderWidth: 1,
+                                borderRadius: 6,
+                                barPercentage: 0.6
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'top',
+                                labels: {
+                                    usePointStyle: true,
+                                    padding: 15
+                                }
+                            },
+                            tooltip: {
+                                backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                                padding: 12,
+                                titleFont: { size: 13 },
+                                bodyFont: { size: 12 },
+                                callbacks: {
+                                    label: function(context) {
+                                        return context.dataset.label + ': S/. ' + context.raw.toFixed(2);
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            x: {
+                                grid: { display: false }
+                            },
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    callback: function(value) {
+                                        return 'S/. ' + value;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            } catch (error) {
+                console.error('Error cargando chart transacciones:', error);
+            }
+        }
+
+        async function cargarChartActividadSemanal() {
+            try {
+                const response = await fetch('/api/estadisticas/movimientos-ultimos-dias');
+                const data = await response.json();
+
+                const ctx = document.getElementById('chartActividadSemanal').getContext('2d');
+
+                if (chartActividadSemanal) {
+                    chartActividadSemanal.destroy();
+                }
+
+                const gradient = ctx.createLinearGradient(0, 0, 0, 250);
+                gradient.addColorStop(0, 'rgba(59, 130, 246, 0.5)');
+                gradient.addColorStop(1, 'rgba(59, 130, 246, 0.0)');
+
+                chartActividadSemanal = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: data.labels,
+                        datasets: [{
+                            label: 'Transacciones',
+                            data: data.data,
+                            fill: true,
+                            backgroundColor: gradient,
+                            borderColor: 'rgba(59, 130, 246, 1)',
+                            borderWidth: 3,
+                            tension: 0.4,
+                            pointBackgroundColor: 'rgba(59, 130, 246, 1)',
+                            pointBorderColor: '#fff',
+                            pointBorderWidth: 2,
+                            pointRadius: 5,
+                            pointHoverRadius: 7
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                                padding: 12
+                            }
+                        },
+                        scales: {
+                            x: {
+                                grid: { display: false }
+                            },
+                            y: {
+                                beginAtZero: true,
+                                ticks: { stepSize: 1 }
+                            }
+                        }
+                    }
+                });
+            } catch (error) {
+                console.error('Error cargando chart actividad:', error);
+            }
+        }
+
+        async function cargarChartTiposMovimiento() {
+            try {
+                const response = await fetch('/api/estadisticas/tipos-movimiento');
+                const data = await response.json();
+
+                const ctx = document.getElementById('chartTiposMovimiento').getContext('2d');
+
+                if (chartTiposMovimiento) {
+                    chartTiposMovimiento.destroy();
+                }
+
+                chartTiposMovimiento = new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: data.labels,
+                        datasets: [{
+                            data: data.data,
+                            backgroundColor: [
+                                'rgba(16, 185, 129, 0.85)',
+                                'rgba(245, 158, 11, 0.85)',
+                                'rgba(239, 68, 68, 0.85)',
+                                'rgba(6, 182, 212, 0.85)'
+                            ],
+                            borderColor: [
+                                'rgba(16, 185, 129, 1)',
+                                'rgba(245, 158, 11, 1)',
+                                'rgba(239, 68, 68, 1)',
+                                'rgba(6, 182, 212, 1)'
+                            ],
+                            borderWidth: 2,
+                            hoverOffset: 10
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        cutout: '65%',
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: {
+                                    usePointStyle: true,
+                                    padding: 12,
+                                    font: { size: 11 }
+                                }
+                            }
+                        }
+                    }
+                });
+            } catch (error) {
+                console.error('Error cargando chart tipos:', error);
+            }
+        }
+
+        async function cargarChartTiposCuenta() {
+            try {
+                const response = await fetch('/api/estadisticas/tipos-cuenta');
+                const data = await response.json();
+
+                const ctx = document.getElementById('chartTiposCuenta').getContext('2d');
+
+                if (chartTiposCuenta) {
+                    chartTiposCuenta.destroy();
+                }
+
+                chartTiposCuenta = new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: data.labels,
+                        datasets: [{
+                            data: data.data,
+                            backgroundColor: [
+                                'rgba(59, 130, 246, 0.85)',
+                                'rgba(139, 92, 246, 0.85)'
+                            ],
+                            borderColor: [
+                                'rgba(59, 130, 246, 1)',
+                                'rgba(139, 92, 246, 1)'
+                            ],
+                            borderWidth: 2,
+                            hoverOffset: 8
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        cutout: '60%',
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: {
+                                    usePointStyle: true,
+                                    padding: 10,
+                                    font: { size: 11 }
+                                }
+                            }
+                        }
+                    }
+                });
+            } catch (error) {
+                console.error('Error cargando chart tipos cuenta:', error);
+            }
+        }
+
+        async function cargarUltimosMovimientos() {
+            try {
+                const response = await fetch('/api/estadisticas/ultimos-movimientos');
+                const movimientos = await response.json();
+
+                const feed = document.getElementById('activityFeed');
+                document.getElementById('activityCount').textContent = `${movimientos.length} ultimas transacciones`;
+
+                if (movimientos.length === 0) {
+                    feed.innerHTML = `
+                        <div class="empty-state" style="padding: 2rem;">
+                            <i class="bi bi-inbox"></i>
+                            <h4>Sin actividad reciente</h4>
+                            <p>Realiza operaciones para ver el historial</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                let html = '';
+                movimientos.forEach(mov => {
+                    const iconInfo = getMovimientoIcon(mov.tipo);
+                    const isPositive = mov.tipo === 'DEPOSITO' || mov.tipo === 'TRANSFERENCIA_RECIBIDA';
+
+                    html += `
+                        <div class="activity-item">
+                            <div class="activity-icon ${iconInfo.class}">
+                                <i class="bi ${iconInfo.icon}"></i>
+                            </div>
+                            <div class="activity-details">
+                                <div class="activity-title">${iconInfo.label}</div>
+                                <div class="activity-meta">
+                                    <i class="bi bi-credit-card"></i> ${mov.cuenta} &bull;
+                                    <i class="bi bi-clock"></i> ${mov.fecha}
+                                </div>
+                            </div>
+                            <div class="activity-amount ${isPositive ? 'positive' : 'negative'}">
+                                ${isPositive ? '+' : '-'} S/. ${mov.monto.toFixed(2)}
+                            </div>
+                        </div>
+                    `;
+                });
+
+                feed.innerHTML = html;
+            } catch (error) {
+                console.error('Error cargando movimientos:', error);
+            }
+        }
+
+        function getMovimientoIcon(tipo) {
+            switch(tipo) {
+                case 'DEPOSITO':
+                    return { icon: 'bi-arrow-down-circle-fill', class: 'deposito', label: 'Deposito' };
+                case 'RETIRO':
+                    return { icon: 'bi-arrow-up-circle-fill', class: 'retiro', label: 'Retiro' };
+                case 'TRANSFERENCIA_ENVIADA':
+                    return { icon: 'bi-send-fill', class: 'transferencia', label: 'Transferencia Enviada' };
+                case 'TRANSFERENCIA_RECIBIDA':
+                    return { icon: 'bi-download', class: 'recibida', label: 'Transferencia Recibida' };
+                default:
+                    return { icon: 'bi-circle-fill', class: 'deposito', label: tipo };
+            }
+        }
+    </script>
+</body>
+</html>

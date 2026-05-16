@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Evidencia 4 - BilleteSeguro</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Times New Roman', Times, serif;
+            line-height: 1.6;
+            color: #000;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px 50px;
+            background: #fff;
+        }
+        h1 {
+            color: #000;
+            font-size: 24px;
+            text-align: center;
+            margin-bottom: 5px;
+            border-bottom: 2px solid #000;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #000;
+            font-size: 18px;
+            margin-top: 30px;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #000;
+            padding-bottom: 5px;
+        }
+        h3 {
+            color: #000;
+            font-size: 15px;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+        h4 {
+            color: #000;
+            font-size: 14px;
+            margin-top: 15px;
+            margin-bottom: 8px;
+        }
+        p {
+            margin-bottom: 12px;
+            text-align: justify;
+        }
+        .header-info {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .header-info p {
+            text-align: center;
+            margin: 3px 0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+            font-size: 12px;
+        }
+        th, td {
+            border: 1px solid #000;
+            padding: 8px 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #f0f0f0;
+            font-weight: bold;
+        }
+        ul, ol {
+            margin-left: 25px;
+            margin-bottom: 15px;
+        }
+        li {
+            margin-bottom: 6px;
+        }
+        .highlight-box {
+            border: 1px solid #000;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .code-ref {
+            font-family: 'Courier New', monospace;
+            font-size: 11px;
+        }
+        .section-individual {
+            border: 1px solid #000;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .page-break {
+            page-break-after: always;
+        }
+        .portada {
+            text-align: center;
+            padding: 60px 0;
+        }
+        .portada h1 {
+            font-size: 24px;
+            border: none;
+            margin-bottom: 20px;
+        }
+        .integrantes {
+            margin: 40px 0;
+        }
+        .fecha {
+            margin-top: 50px;
+            font-style: italic;
+        }
+        .screenshot-placeholder {
+            border: 1px dashed #000;
+            padding: 30px;
+            text-align: center;
+            margin: 15px 0;
+            font-style: italic;
+        }
+        .pattern-card {
+            border: 1px solid #000;
+            padding: 15px;
+            margin: 10px 0;
+        }
+        .pattern-card h4 {
+            margin-top: 0;
+        }
+        footer {
+            margin-top: 50px;
+            text-align: center;
+            font-size: 12px;
+            border-top: 1px solid #000;
+            padding-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- PORTADA -->
+    <div class="portada">
+        <p style="font-size: 14px;">UNIVERSIDAD / INSTITUTO</p>
+        <p style="font-size: 14px;">[Nombre de la Universidad/Instituto]</p>
+        <br><br>
+        <h1>EVALUACION DE LA ACTIVIDAD DE APRENDIZAJE 4</h1>
+        <h2 style="border: none; text-align: center;">EVIDENCIA 4</h2>
+        <p style="font-size: 16px; text-align: center;"><strong>Despliegue en Nube con Referencias en Patrones de Arquitectura y Software</strong></p>
+        <p style="text-align: center;">Entrega Final del Proyecto</p>
+
+        <div class="integrantes">
+            <p><strong>Nombre del Proyecto:</strong> BilleteSeguro - Sistema Bancario</p>
+            <p><strong>Nombre del Equipo:</strong> Grupo X</p>
+            <br>
+            <p><strong>Integrantes:</strong></p>
+            <p>[Nombre del Integrante 1]</p>
+            <p>[Nombre del Integrante 2]</p>
+            <p>[Nombre del Integrante 3]</p>
+            <p>[Nombre del Integrante 4]</p>
+        </div>
+
+        <p class="fecha">Mayo 2026</p>
+        <p>Asignatura: Analisis y Diseno de Soluciones de TI</p>
+    </div>
+
+    <div class="page-break"></div>
+
+    <!-- 1. INTRODUCCION -->
+    <h2>1. INTRODUCCION</h2>
+
+    <p>El presente documento describe la implementacion final del proyecto <strong>BilleteSeguro</strong>, un sistema de gestion bancaria desarrollado con Spring Boot y Spring Data JPA. Este proyecto representa la culminacion de un proceso de desarrollo que aplica principios de desarrollo seguro, patrones de diseno de software y arquitectura de soluciones.</p>
+
+    <p>BilleteSeguro es una aplicacion web que permite realizar operaciones bancarias fundamentales como gestion de cuentas, depositos, retiros y transferencias, implementando una arquitectura robusta basada en el patron MVC y siguiendo los principios SOLID para garantizar un codigo mantenible y escalable.</p>
+
+    <p>El objetivo principal de esta entrega es demostrar la aplicacion practica de los conocimientos adquiridos en el curso, evidenciando el uso correcto de patrones creacionales, de comportamiento y de microservicios, asi como el despliegue exitoso del MVP funcional en un entorno de produccion.</p>
+
+    <div class="highlight-box">
+        <strong>Tecnologias Utilizadas:</strong>
+        <ul style="margin-top: 10px;">
+            <li>Java 17 con Spring Boot 3.2.4</li>
+            <li>Spring Data JPA + Hibernate</li>
+            <li>Base de datos H2 (embebida)</li>
+            <li>Thymeleaf para vistas</li>
+            <li>Maven como herramienta de build</li>
+        </ul>
+    </div>
+
+    <!-- 2. CODIGO FUENTE EN GITHUB -->
+    <h2>2. CODIGO FUENTE EN GITHUB</h2>
+
+    <p>El codigo fuente completo del proyecto se encuentra disponible en el repositorio de GitHub, siguiendo las mejores practicas de control de versiones y documentacion.</p>
+
+    <table>
+        <tr>
+            <th>Elemento</th>
+            <th>Detalle</th>
+        </tr>
+        <tr>
+            <td>URL del Repositorio</td>
+            <td>[https://github.com/usuario/billeteseguro]</td>
+        </tr>
+        <tr>
+            <td>Rama Principal</td>
+            <td>main</td>
+        </tr>
+        <tr>
+            <td>Commits Totales</td>
+            <td>[XX commits]</td>
+        </tr>
+        <tr>
+            <td>Ultima Actualizacion</td>
+            <td>Mayo 2026</td>
+        </tr>
+    </table>
+
+    <h3>2.1 Estructura del Proyecto</h3>
+    <p>El proyecto sigue una estructura organizada basada en el patron MVC con separacion clara de responsabilidades:</p>
+
+    <table>
+        <tr>
+            <th>Directorio</th>
+            <th>Contenido</th>
+            <th>Proposito</th>
+        </tr>
+        <tr>
+            <td><span class="code-ref">model/</span></td>
+            <td>Cuenta, Movimiento, Enums</td>
+            <td>Entidades JPA y objetos de dominio</td>
+        </tr>
+        <tr>
+            <td><span class="code-ref">repository/</span></td>
+            <td>CuentaRepository, MovimientoRepository</td>
+            <td>Interfaces de acceso a datos</td>
+        </tr>
+        <tr>
+            <td><span class="code-ref">service/</span></td>
+            <td>BancoService</td>
+            <td>Logica de negocio transaccional</td>
+        </tr>
+        <tr>
+            <td><span class="code-ref">controller/</span></td>
+            <td>BancoController, VistaController</td>
+            <td>Endpoints REST y vistas</td>
+        </tr>
+        <tr>
+            <td><span class="code-ref">templates/</span></td>
+            <td>index, cuentas, operaciones, etc.</td>
+            <td>Vistas Thymeleaf</td>
+        </tr>
+    </table>
+
+    <div class="screenshot-placeholder">
+        [SCREENSHOT: Repositorio de GitHub mostrando la estructura del proyecto]
+    </div>
+
+    <div class="page-break"></div>
+
+    <!-- 3. PRINCIPIOS SOLID -->
+    <h2>3. PRINCIPIOS SOLID APLICADOS</h2>
+
+    <p>Los principios SOLID son fundamentales para crear software mantenible, escalable y robusto. En el desarrollo de BilleteSeguro, hemos aplicado estos principios de manera consciente para garantizar la calidad del codigo.</p>
+
+    <h3>3.1 Single Responsibility Principle (SRP) - Responsabilidad Unica</h3>
+    <div class="pattern-card">
+        <h4>Definicion</h4>
+        <p>Cada clase debe tener una unica razon para cambiar, es decir, debe tener una sola responsabilidad.</p>
+
+        <h4>Aplicacion en BilleteSeguro</h4>
+        <p>En nuestro proyecto, este principio se evidencia en la separacion clara de capas:</p>
+        <ul>
+            <li><strong>Cuenta.java:</strong> Solo se encarga de representar los datos de una cuenta bancaria y sus atributos.</li>
+            <li><strong>CuentaRepository.java:</strong> Unicamente maneja las operaciones de persistencia de cuentas.</li>
+            <li><strong>BancoService.java:</strong> Contiene exclusivamente la logica de negocio bancaria.</li>
+            <li><strong>BancoController.java:</strong> Solo gestiona las peticiones HTTP y respuestas.</li>
+        </ul>
+
+        <h4>Importancia</h4>
+        <p>Al separar responsabilidades, si necesitamos modificar la logica de validacion de transferencias, solo tocamos el Service. Si cambia el formato de respuesta de la API, solo modificamos el Controller. Esto reduce el riesgo de introducir errores y facilita el mantenimiento.</p>
+    </div>
+
+    <h3>3.2 Open/Closed Principle (OCP) - Abierto/Cerrado</h3>
+    <div class="pattern-card">
+        <h4>Definicion</h4>
+        <p>Las entidades de software deben estar abiertas para extension pero cerradas para modificacion.</p>
+
+        <h4>Aplicacion en BilleteSeguro</h4>
+        <p>Implementamos este principio mediante el uso de enumeraciones y la posibilidad de extender funcionalidades:</p>
+        <ul>
+            <li><strong>TipoCuenta (Enum):</strong> Permite agregar nuevos tipos de cuenta (AHORRO, CORRIENTE, PLAZO_FIJO) sin modificar la clase Cuenta.</li>
+            <li><strong>TipoMovimiento (Enum):</strong> Facilita anadir nuevos tipos de transacciones sin alterar la logica existente.</li>
+            <li><strong>JpaRepository:</strong> Spring Data permite extender funcionalidades de repositorio sin modificar la interfaz base.</li>
+        </ul>
+
+        <h4>Importancia</h4>
+        <p>Si el banco decide implementar un nuevo tipo de cuenta "EMPRESARIAL", simplemente agregamos el valor al enum sin tocar el codigo existente, minimizando el riesgo de afectar funcionalidades ya probadas.</p>
+    </div>
+
+    <h3>3.3 Dependency Inversion Principle (DIP) - Inversion de Dependencias</h3>
+    <div class="pattern-card">
+        <h4>Definicion</h4>
+        <p>Los modulos de alto nivel no deben depender de modulos de bajo nivel. Ambos deben depender de abstracciones.</p>
+
+        <h4>Aplicacion en BilleteSeguro</h4>
+        <p>Spring Framework facilita la aplicacion de este principio mediante la inyeccion de dependencias:</p>
+        <ul>
+            <li><strong>BancoService</strong> depende de las interfaces <strong>CuentaRepository</strong> y <strong>MovimientoRepository</strong>, no de implementaciones concretas.</li>
+            <li><strong>BancoController</strong> recibe <strong>BancoService</strong> a traves de inyeccion por constructor, no lo instancia directamente.</li>
+            <li>Los repositorios extienden <strong>JpaRepository</strong>, una abstraccion de Spring Data.</li>
+        </ul>
+
+        <h4>Importancia</h4>
+        <p>Gracias a DIP, podemos cambiar la implementacion de la base de datos (de H2 a MySQL, por ejemplo) sin modificar la capa de servicio. Tambien facilita las pruebas unitarias al permitir inyectar mocks de los repositorios.</p>
+    </div>
+
+    <div class="page-break"></div>
+
+    <!-- 4. PATRONES CREACIONALES -->
+    <h2>4. PATRONES CREACIONALES</h2>
+
+    <p>Los patrones creacionales se enfocan en los mecanismos de creacion de objetos, proporcionando flexibilidad sobre que objetos crear, como crearlos y cuando hacerlo.</p>
+
+    <h3>4.1 Patron Singleton</h3>
+    <div class="pattern-card">
+        <h4>Definicion</h4>
+        <p>Garantiza que una clase tenga una unica instancia y proporciona un punto de acceso global a ella.</p>
+
+        <h4>Aplicacion en BilleteSeguro</h4>
+        <p>Spring Boot implementa el patron Singleton por defecto para todos los beans gestionados por el contenedor de IoC:</p>
+        <ul>
+            <li><strong>BancoService:</strong> Anotado con <span class="code-ref">@Service</span>, existe como unica instancia compartida por todos los controladores.</li>
+            <li><strong>DataSource:</strong> La conexion a la base de datos H2 se gestiona como Singleton, optimizando recursos.</li>
+            <li><strong>EntityManager:</strong> Hibernate mantiene una unica instancia del gestor de entidades por contexto.</li>
+        </ul>
+
+        <h4>Importancia</h4>
+        <p>Al tener una unica instancia del servicio bancario, garantizamos consistencia en las operaciones transaccionales y evitamos problemas de concurrencia que podrian surgir con multiples instancias manejando el mismo estado.</p>
+    </div>
+
+    <h3>4.2 Patron Factory Method</h3>
+    <div class="pattern-card">
+        <h4>Definicion</h4>
+        <p>Define una interfaz para crear objetos, pero permite a las subclases decidir que clase instanciar.</p>
+
+        <h4>Aplicacion en BilleteSeguro</h4>
+        <p>Este patron se evidencia en varios componentes del sistema:</p>
+        <ul>
+            <li><strong>Generacion de Numeros de Cuenta:</strong> El metodo <span class="code-ref">generarNumeroCuenta()</span> en la entidad Cuenta actua como factory method que crea identificadores unicos con formato especifico (YYYYMMDD + 6 digitos aleatorios).</li>
+            <li><strong>Spring Data JPA:</strong> Los metodos como <span class="code-ref">save()</span> actuan como factory methods que crean o actualizan entidades segun su estado.</li>
+            <li><strong>Creacion de Movimientos:</strong> El servicio utiliza metodos factory para crear diferentes tipos de movimientos (deposito, retiro, transferencia) con la configuracion adecuada.</li>
+        </ul>
+
+        <h4>Importancia</h4>
+        <p>Factory Method nos permite centralizar la logica de creacion de objetos complejos. Si cambian las reglas para generar numeros de cuenta, solo modificamos un punto del codigo.</p>
+    </div>
+
+    <h3>4.3 Patron Builder (Implicito)</h3>
+    <div class="pattern-card">
+        <h4>Definicion</h4>
+        <p>Separa la construccion de un objeto complejo de su representacion, permitiendo crear diferentes representaciones con el mismo proceso.</p>
+
+        <h4>Aplicacion en BilleteSeguro</h4>
+        <p>Aunque no implementamos un Builder explicito, el concepto se aplica en:</p>
+        <ul>
+            <li><strong>Construccion de Movimientos:</strong> La creacion de un movimiento requiere multiples pasos: establecer tipo, monto, cuenta, saldos anterior y posterior, descripcion y fecha.</li>
+            <li><strong>DTOs (TransferenciaRequest):</strong> Los objetos de transferencia de datos se construyen paso a paso con los datos necesarios para la operacion.</li>
+            <li><strong>Respuestas HTTP:</strong> ResponseEntity se construye con builder pattern para definir status, headers y body.</li>
+        </ul>
+
+        <h4>Importancia</h4>
+        <p>El patron Builder mejora la legibilidad del codigo cuando creamos objetos con muchos parametros, evitando constructores con demasiados argumentos.</p>
+    </div>
+
+    <div class="page-break"></div>
+
+    <!-- 5. PATRONES DE COMPORTAMIENTO -->
+    <h2>5. PATRONES DE COMPORTAMIENTO</h2>
+
+    <p>Los patrones de comportamiento se centran en la comunicacion efectiva y la asignacion de responsabilidades entre objetos.</p>
+
+    <h3>5.1 Patron Observer</h3>
+    <div class="pattern-card">
+        <h4>Definicion</h4>
+        <p>Define una dependencia uno-a-muchos entre objetos, de modo que cuando un objeto cambia de estado, todos sus dependientes son notificados automaticamente.</p>
+
+        <h4>Aplicacion en BilleteSeguro</h4>
+        <p>El patron Observer se implementa en el sistema de notificaciones:</p>
+        <ul>
+            <li><strong>Sistema de Notificaciones en Tiempo Real:</strong> Cuando se realiza una operacion bancaria (deposito, retiro, transferencia), el sistema notifica automaticamente a la interfaz de usuario.</li>
+            <li><strong>Toast Notifications:</strong> Los componentes de UI "observan" los eventos del sistema y muestran alertas visuales cuando ocurren transacciones.</li>
+            <li><strong>Persistencia con localStorage:</strong> Las notificaciones se almacenan y sincronizan entre pestanas del navegador usando el evento 'storage'.</li>
+        </ul>
+
+        <h4>Importancia</h4>
+        <p>Observer permite desacoplar la logica de negocio de la presentacion. El servicio no necesita conocer como se muestran las notificaciones; simplemente emite eventos que los observadores procesan segun su responsabilidad.</p>
+    </div>
+
+    <h3>5.2 Patron Template Method</h3>
+    <div class="pattern-card">
+        <h4>Definicion</h4>
+        <p>Define el esqueleto de un algoritmo en una operacion, delegando algunos pasos a las subclases.</p>
+
+        <h4>Aplicacion en BilleteSeguro</h4>
+        <p>Este patron se evidencia en la estructura de las operaciones bancarias:</p>
+        <ul>
+            <li><strong>Flujo de Operaciones:</strong> Todas las operaciones siguen un template: validar - ejecutar - registrar movimiento - actualizar saldo.</li>
+            <li><strong>JpaRepository:</strong> Spring Data define templates para operaciones CRUD que extendemos con metodos personalizados.</li>
+            <li><strong>Controladores REST:</strong> Siguen un patron comun de recibir request, procesar con service, y retornar response.</li>
+        </ul>
+
+        <h4>Importancia</h4>
+        <p>Template Method garantiza consistencia en las operaciones. Todas las transacciones pasan por las mismas validaciones y generan registros de movimiento, evitando inconsistencias.</p>
+    </div>
+
+    <h3>5.3 Patron Strategy</h3>
+    <div class="pattern-card">
+        <h4>Definicion</h4>
+        <p>Define una familia de algoritmos, encapsula cada uno, y los hace intercambiables.</p>
+
+        <h4>Aplicacion en BilleteSeguro</h4>
+        <p>El patron Strategy se aplica en el manejo de diferentes tipos de operaciones:</p>
+        <ul>
+            <li><strong>Tipos de Movimiento:</strong> Cada tipo (DEPOSITO, RETIRO, TRANSFERENCIA_ENVIADA, TRANSFERENCIA_RECIBIDA) tiene su propia estrategia de procesamiento.</li>
+            <li><strong>Calculo de Intereses:</strong> La seccion de intereses permite diferentes estrategias de calculo (simple, compuesto) intercambiables.</li>
+            <li><strong>Validaciones:</strong> Diferentes estrategias de validacion segun el tipo de cuenta y operacion.</li>
+        </ul>
+
+        <h4>Importancia</h4>
+        <p>Strategy nos permite agregar nuevos tipos de operaciones o metodos de calculo sin modificar el codigo existente, siguiendo tambien el principio Open/Closed.</p>
+    </div>
+
+    <div class="page-break"></div>
+
+    <!-- 6. PATRONES DE MICROSERVICIOS -->
+    <h2>6. PATRONES DE MICROSERVICIOS</h2>
+
+    <p>Aunque BilleteSeguro es una aplicacion monolitica, su arquitectura incorpora patrones que facilitan una futura migracion a microservicios y que representan buenas practicas de diseno distribuido.</p>
+
+    <h3>6.1 Patron API Gateway</h3>
+    <div class="pattern-card">
+        <h4>Definicion</h4>
+        <p>Proporciona un punto de entrada unico para todas las peticiones de clientes, enrutandolas a los servicios apropiados.</p>
+
+        <h4>Aplicacion en BilleteSeguro</h4>
+        <p>El controlador REST actua como un API Gateway simplificado:</p>
+        <ul>
+            <li><strong>BancoController:</strong> Centraliza todos los endpoints de la API bajo el prefijo <span class="code-ref">/api</span>.</li>
+            <li><strong>Enrutamiento Unificado:</strong> Las operaciones de cuentas (<span class="code-ref">/api/cuentas</span>), operaciones (<span class="code-ref">/api/operaciones</span>) y movimientos (<span class="code-ref">/api/movimientos</span>) se gestionan desde un punto central.</li>
+            <li><strong>Manejo de Errores Centralizado:</strong> Los errores se capturan y transforman en respuestas HTTP consistentes.</li>
+        </ul>
+
+        <h4>Importancia</h4>
+        <p>Este patron simplifica la integracion con el frontend, proporciona un punto unico para implementar autenticacion y facilita el versionado de la API.</p>
+    </div>
+
+    <h3>6.2 Patron Database per Service</h3>
+    <div class="pattern-card">
+        <h4>Definicion</h4>
+        <p>Cada servicio gestiona su propia base de datos privada, promoviendo el bajo acoplamiento.</p>
+
+        <h4>Aplicacion en BilleteSeguro</h4>
+        <p>Aunque usamos una base de datos H2 embebida, la arquitectura esta preparada para separacion:</p>
+        <ul>
+            <li><strong>Separacion de Entidades:</strong> Las entidades Cuenta y Movimiento tienen sus propios repositorios independientes.</li>
+            <li><strong>Relaciones Bien Definidas:</strong> La relacion @ManyToOne entre Movimiento y Cuenta esta claramente establecida, facilitando una eventual separacion.</li>
+            <li><strong>Configuracion Externalizada:</strong> Los parametros de conexion estan en <span class="code-ref">application.properties</span>, permitiendo cambiar la base de datos sin modificar codigo.</li>
+        </ul>
+
+        <h4>Importancia</h4>
+        <p>Esta estructura permite escalar componentes de forma independiente y facilita la migracion a una arquitectura de microservicios real cuando el negocio lo requiera.</p>
+    </div>
+
+    <h3>6.3 Patron Repository</h3>
+    <div class="pattern-card">
+        <h4>Definicion</h4>
+        <p>Media entre el dominio y las capas de mapeo de datos, actuando como una coleccion de objetos de dominio en memoria.</p>
+
+        <h4>Aplicacion en BilleteSeguro</h4>
+        <p>Spring Data JPA implementa este patron de forma elegante:</p>
+        <ul>
+            <li><strong>CuentaRepository:</strong> Extiende JpaRepository proporcionando operaciones CRUD automaticas y metodos personalizados como <span class="code-ref">findByNumeroCuenta()</span>.</li>
+            <li><strong>MovimientoRepository:</strong> Ofrece consultas especializadas para obtener movimientos por cuenta.</li>
+            <li><strong>Abstraccion del Acceso a Datos:</strong> El servicio trabaja con interfaces, desconociendo los detalles de persistencia.</li>
+        </ul>
+
+        <h4>Importancia</h4>
+        <p>El patron Repository centraliza la logica de acceso a datos, facilita las pruebas con mocks y permite cambiar el mecanismo de persistencia sin afectar la logica de negocio.</p>
+    </div>
+
+    <div class="page-break"></div>
+
+    <!-- 7. ARQUITECTURA DEL SISTEMA -->
+    <h2>7. ARQUITECTURA DEL SISTEMA</h2>
+
+    <h3>7.1 Diagrama de Arquitectura</h3>
+    <p>BilleteSeguro implementa una arquitectura en capas siguiendo el patron MVC con Spring Boot:</p>
+
+    <div class="screenshot-placeholder">
+        [DIAGRAMA: Arquitectura en capas del sistema]
+        <br><br>
+        PRESENTACION (Thymeleaf + JavaScript)<br>
+        |<br>
+        CONTROLADORES (REST + Vistas)<br>
+        |<br>
+        SERVICIOS (Logica de Negocio)<br>
+        |<br>
+        REPOSITORIOS (Spring Data JPA)<br>
+        |<br>
+        BASE DE DATOS (H2 Embebida)
+    </div>
+
+    <h3>7.2 Modelo de Datos</h3>
+    <p>El modelo de datos consiste en dos entidades principales con una relacion uno a muchos:</p>
+
+    <table>
+        <tr>
+            <th>Entidad</th>
+            <th>Atributos Principales</th>
+            <th>Relaciones</th>
+        </tr>
+        <tr>
+            <td>Cuenta</td>
+            <td>id, numeroCuenta, titular, dni, saldo, tipoCuenta, estado, fechaCreacion</td>
+            <td>@OneToMany con Movimiento</td>
+        </tr>
+        <tr>
+            <td>Movimiento</td>
+            <td>id, tipo, monto, saldoAnterior, saldoPosterior, descripcion, fecha</td>
+            <td>@ManyToOne con Cuenta</td>
+        </tr>
+    </table>
+
+    <h3>7.3 Endpoints de la API</h3>
+    <table>
+        <tr>
+            <th>Metodo</th>
+            <th>Endpoint</th>
+            <th>Descripcion</th>
+        </tr>
+        <tr>
+            <td>GET</td>
+            <td>/api/cuentas</td>
+            <td>Listar todas las cuentas</td>
+        </tr>
+        <tr>
+            <td>GET</td>
+            <td>/api/cuentas/{id}</td>
+            <td>Obtener cuenta por ID</td>
+        </tr>
+        <tr>
+            <td>POST</td>
+            <td>/api/cuentas</td>
+            <td>Crear nueva cuenta</td>
+        </tr>
+        <tr>
+            <td>POST</td>
+            <td>/api/operaciones/deposito</td>
+            <td>Realizar deposito</td>
+        </tr>
+        <tr>
+            <td>POST</td>
+            <td>/api/operaciones/retiro</td>
+            <td>Realizar retiro</td>
+        </tr>
+        <tr>
+            <td>POST</td>
+            <td>/api/operaciones/transferencia</td>
+            <td>Realizar transferencia</td>
+        </tr>
+        <tr>
+            <td>GET</td>
+            <td>/api/movimientos/{numeroCuenta}</td>
+            <td>Historial de movimientos</td>
+        </tr>
+    </table>
+
+    <div class="page-break"></div>
+
+    <!-- 8. DESPLIEGUE EN LA NUBE -->
+    <h2>8. DOCUMENTACION DEL DESPLIEGUE EN LA NUBE</h2>
+
+    <h3>8.1 Plataforma de Despliegue</h3>
+    <p>El proyecto BilleteSeguro ha sido desplegado en [Plataforma seleccionada: Railway/Render/Heroku/AWS], garantizando disponibilidad y accesibilidad del MVP funcional.</p>
+
+    <table>
+        <tr>
+            <th>Aspecto</th>
+            <th>Detalle</th>
+        </tr>
+        <tr>
+            <td>Plataforma</td>
+            <td>[Railway / Render / Heroku / AWS Elastic Beanstalk]</td>
+        </tr>
+        <tr>
+            <td>URL de Produccion</td>
+            <td>[https://billeteseguro.railway.app]</td>
+        </tr>
+        <tr>
+            <td>Region</td>
+            <td>[us-east-1 / South America]</td>
+        </tr>
+        <tr>
+            <td>Estado</td>
+            <td>Operativo</td>
+        </tr>
+    </table>
+
+    <h3>8.2 Proceso de Despliegue</h3>
+    <p>El despliegue se realizo siguiendo estos pasos:</p>
+    <ol>
+        <li><strong>Preparacion del Proyecto:</strong> Configuracion del archivo <span class="code-ref">application.properties</span> con variables de entorno para produccion.</li>
+        <li><strong>Generacion del JAR:</strong> Ejecucion de <span class="code-ref">mvn clean package</span> para crear el artefacto desplegable.</li>
+        <li><strong>Conexion con GitHub:</strong> Vinculacion del repositorio con la plataforma de despliegue para CI/CD automatico.</li>
+        <li><strong>Configuracion de Variables:</strong> Establecimiento de variables de entorno para el puerto del servidor y configuraciones de base de datos.</li>
+        <li><strong>Despliegue Automatico:</strong> Push a la rama main activa el pipeline de despliegue.</li>
+        <li><strong>Verificacion:</strong> Pruebas de funcionamiento del MVP en el entorno de produccion.</li>
+    </ol>
+
+    <h3>8.3 Configuracion de Produccion</h3>
+    <div class="highlight-box">
+        <strong>Variables de Entorno Configuradas:</strong>
+        <ul style="margin-top: 10px;">
+            <li><span class="code-ref">SERVER_PORT</span>: Puerto asignado por la plataforma</li>
+            <li><span class="code-ref">SPRING_PROFILES_ACTIVE</span>: prod</li>
+            <li><span class="code-ref">JAVA_VERSION</span>: 17</li>
+        </ul>
+    </div>
+
+    <div class="screenshot-placeholder">
+        [SCREENSHOT: Dashboard de la plataforma de despliegue mostrando el servicio activo]
+    </div>
+
+    <div class="screenshot-placeholder">
+        [SCREENSHOT: Aplicacion funcionando en la URL de produccion]
+    </div>
+
+    <div class="page-break"></div>
+
+    <!-- 9. MVP FUNCIONAL -->
+    <h2>9. IMPLEMENTACION DEL MVP FUNCIONAL</h2>
+
+    <h3>9.1 Funcionalidades Implementadas</h3>
+    <p>El MVP de BilleteSeguro incluye las siguientes funcionalidades operativas:</p>
+
+    <table>
+        <tr>
+            <th>Modulo</th>
+            <th>Funcionalidad</th>
+            <th>Estado</th>
+        </tr>
+        <tr>
+            <td>Dashboard</td>
+            <td>Vista general con estadisticas y patrones de diseno</td>
+            <td>Completo</td>
+        </tr>
+        <tr>
+            <td>Cuentas</td>
+            <td>Creacion y listado de cuentas bancarias</td>
+            <td>Completo</td>
+        </tr>
+        <tr>
+            <td>Operaciones</td>
+            <td>Depositos, retiros y transferencias</td>
+            <td>Completo</td>
+        </tr>
+        <tr>
+            <td>Movimientos</td>
+            <td>Historial de transacciones por cuenta</td>
+            <td>Completo</td>
+        </tr>
+        <tr>
+            <td>Intereses</td>
+            <td>Calculadora de interes simple y compuesto</td>
+            <td>Completo</td>
+        </tr>
+        <tr>
+            <td>Demos</td>
+            <td>Demostracion interactiva de patrones</td>
+            <td>Completo</td>
+        </tr>
+        <tr>
+            <td>Notificaciones</td>
+            <td>Sistema de alertas en tiempo real</td>
+            <td>Completo</td>
+        </tr>
+    </table>
+
+    <h3>9.2 Evidencias de Funcionamiento</h3>
+
+    <div class="screenshot-placeholder">
+        [SCREENSHOT: Pagina principal (Dashboard) del sistema]
+    </div>
+
+    <div class="screenshot-placeholder">
+        [SCREENSHOT: Formulario de creacion de cuenta y listado]
+    </div>
+
+    <div class="screenshot-placeholder">
+        [SCREENSHOT: Modulo de operaciones (deposito/retiro/transferencia)]
+    </div>
+
+    <div class="screenshot-placeholder">
+        [SCREENSHOT: Historial de movimientos de una cuenta]
+    </div>
+
+    <div class="page-break"></div>
+
+    <!-- 10. SECCION INDIVIDUAL -->
+    <h2>10. REFLEXION INDIVIDUAL</h2>
+
+    <p>Esta seccion debe ser completada individualmente por cada integrante del equipo.</p>
+
+    <div class="section-individual">
+        <h3>Integrante: [NOMBRE COMPLETO]</h3>
+
+        <h4>a) Que no sabias al iniciar la elaboracion del proyecto que era necesario para su desarrollo?</h4>
+        <p>[Completar con reflexion personal. Ejemplo: "Al iniciar el proyecto, no tenia conocimiento profundo sobre Spring Data JPA y como implementar relaciones entre entidades usando anotaciones como @OneToMany y @ManyToOne. Tampoco conocia el patron Observer para implementar sistemas de notificaciones en tiempo real."]</p>
+
+        <h4>b) Que acciones realizaste de manera autonoma para superar uno de los puntos que no sabias?</h4>
+        <p>[Completar con acciones concretas. Ejemplo: "Para aprender sobre Spring Data JPA, realice las siguientes acciones autonomas:"]</p>
+        <ul>
+            <li>[Accion 1: Revisar la documentacion oficial de Spring Data]</li>
+            <li>[Accion 2: Completar tutoriales en Baeldung sobre JPA]</li>
+            <li>[Accion 3: Practicar con proyectos pequenos antes de implementar en el proyecto principal]</li>
+            <li>[Accion 4: Consultar Stack Overflow para resolver dudas especificas]</li>
+        </ul>
+
+        <h4>c) Lograste superar esa dificultad? Cuales fueron las acciones que te permitieron superar ello? Que accion no fue util y por que?</h4>
+        <p>[Completar con analisis. Ejemplo: "Si, logre superar la dificultad. Las acciones mas utiles fueron:"]</p>
+        <ul>
+            <li><strong>Util:</strong> [Describir que funciono y por que]</li>
+            <li><strong>No tan util:</strong> [Describir que no funciono y por que]</li>
+        </ul>
+
+        <h4>d) Determina 2 nuevas metas que contribuyan a tu aprendizaje continuo</h4>
+        <table>
+            <tr>
+                <th>Meta</th>
+                <th>Acciones para Cumplirla</th>
+                <th>Plazo</th>
+            </tr>
+            <tr>
+                <td>[Meta 1: Ejemplo - Dominar Spring Security]</td>
+                <td>[Completar curso en linea, implementar autenticacion en proyecto personal]</td>
+                <td>[3 meses]</td>
+            </tr>
+            <tr>
+                <td>[Meta 2: Ejemplo - Aprender Docker]</td>
+                <td>[Certificacion Docker, containerizar proyectos existentes]</td>
+                <td>[2 meses]</td>
+            </tr>
+        </table>
+    </div>
+
+    <p><em>Nota: Copiar esta seccion para cada integrante del grupo.</em></p>
+
+    <div class="page-break"></div>
+
+    <!-- 11. CONCLUSIONES -->
+    <h2>11. CONCLUSIONES</h2>
+
+    <h3>11.1 Cumplimiento de Objetivos</h3>
+    <p>El proyecto BilleteSeguro ha cumplido satisfactoriamente con los objetivos planteados para la Actividad de Aprendizaje 4:</p>
+
+    <ul>
+        <li><strong>Principios SOLID:</strong> Se aplicaron correctamente los principios SRP, OCP y DIP, fundamentando su importancia en el desarrollo del software.</li>
+        <li><strong>Patrones Creacionales:</strong> Se implementaron Singleton, Factory Method y Builder, mejorando la flexibilidad en la creacion de objetos.</li>
+        <li><strong>Patrones de Comportamiento:</strong> Observer, Template Method y Strategy fueron aplicados para gestionar la comunicacion entre componentes.</li>
+        <li><strong>Patrones de Microservicios:</strong> API Gateway, Database per Service y Repository preparan el sistema para escalabilidad futura.</li>
+        <li><strong>Despliegue en Nube:</strong> El MVP funcional esta operativo y accesible publicamente.</li>
+    </ul>
+
+    <h3>11.2 Lecciones Aprendidas</h3>
+    <ul>
+        <li>La aplicacion de patrones de diseno desde el inicio facilita significativamente el mantenimiento y extension del codigo.</li>
+        <li>Spring Boot abstrae muchos patrones complejos, pero es importante entender que ocurre "bajo el capo" para tomar decisiones informadas.</li>
+        <li>El trabajo en equipo y la comunicacion efectiva son tan importantes como las habilidades tecnicas.</li>
+        <li>El despliegue en la nube requiere consideraciones adicionales de configuracion y seguridad.</li>
+    </ul>
+
+    <h3>11.3 Trabajo Futuro</h3>
+    <p>Para futuras iteraciones del proyecto, se identifican las siguientes mejoras potenciales:</p>
+    <ul>
+        <li>Implementacion de autenticacion y autorizacion con Spring Security</li>
+        <li>Migracion a base de datos PostgreSQL para produccion</li>
+        <li>Containerizacion con Docker para facilitar despliegues</li>
+        <li>Implementacion de pruebas automatizadas con JUnit y Mockito</li>
+        <li>Evolucion hacia arquitectura de microservicios</li>
+    </ul>
+
+    <!-- 12. REFERENCIAS -->
+    <h2>12. REFERENCIAS</h2>
+
+    <h3>Documentacion Oficial</h3>
+    <ol>
+        <li>Spring Framework Documentation. (2024). Spring Boot Reference. https://docs.spring.io/spring-boot/</li>
+        <li>Spring Data JPA Documentation. (2024). Spring Data JPA Reference. https://docs.spring.io/spring-data/jpa/</li>
+        <li>Oracle. (2024). Java SE Documentation. https://docs.oracle.com/en/java/</li>
+    </ol>
+
+    <h3>Patrones de Diseno</h3>
+    <ol start="4">
+        <li>Gamma, E., et al. (1994). Design Patterns: Elements of Reusable Object-Oriented Software. Addison-Wesley.</li>
+        <li>Martin, R. C. (2017). Clean Architecture: A Craftsman's Guide to Software Structure and Design. Prentice Hall.</li>
+        <li>Martin, R. C. (2008). Clean Code: A Handbook of Agile Software Craftsmanship. Prentice Hall.</li>
+    </ol>
+
+    <h3>Microservicios</h3>
+    <ol start="7">
+        <li>Richardson, C. (2018). Microservices Patterns. Manning Publications.</li>
+        <li>Newman, S. (2021). Building Microservices (2nd ed.). O'Reilly Media.</li>
+    </ol>
+
+    <h3>Recursos en Linea</h3>
+    <ol start="9">
+        <li>Baeldung. (2024). Java and Spring Tutorials. https://www.baeldung.com/</li>
+        <li>Refactoring Guru. (2024). Design Patterns. https://refactoring.guru/design-patterns</li>
+    </ol>
+
+    <footer>
+        <p><strong>Documento elaborado siguiendo los lineamientos de evaluacion AA4</strong></p>
+        <p>BilleteSeguro - Sistema Bancario con Spring Data JPA</p>
+        <p>Mayo 2026</p>
+    </footer>
+
+</body>
+</html>

@@ -1,0 +1,1094 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Demos en Vivo | Patrones de Diseño - BilleteSeguro</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link th:href="@{/css/style.css}" rel="stylesheet">
+    <script th:src="@{/js/toast.js}"></script>
+    <style>
+        .demo-header {
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(59, 130, 246, 0.2));
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+        .demo-header h1 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, #8b5cf6, #3b82f6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .demo-header p {
+            color: var(--text-muted);
+            margin: 0;
+        }
+        .live-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--success);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            margin-top: 1rem;
+        }
+        .live-badge::before {
+            content: '';
+            width: 8px;
+            height: 8px;
+            background: var(--success);
+            border-radius: 50%;
+            animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.3); }
+        }
+        .demo-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        @media (max-width: 1200px) {
+            .demo-grid { grid-template-columns: 1fr; }
+        }
+        .demo-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        .demo-card:hover {
+            border-color: rgba(139, 92, 246, 0.4);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        .demo-card-header {
+            padding: 1.25rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .demo-card-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+        }
+        .demo-card-title {
+            flex: 1;
+        }
+        .demo-card-title h3 {
+            font-size: 1.1rem;
+            margin: 0 0 4px 0;
+            color: var(--text-primary);
+        }
+        .demo-card-title span {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+        .demo-card-body {
+            padding: 1.25rem;
+        }
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        .form-group label {
+            display: block;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+            font-weight: 500;
+        }
+        .form-control {
+            width: 100%;
+            padding: 12px 14px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            color: var(--text-primary);
+            font-size: 0.95rem;
+            transition: all 0.2s;
+        }
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+        }
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+        .btn-demo {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .btn-demo:hover {
+            transform: translateY(-2px);
+        }
+        .btn-demo:active {
+            transform: translateY(0);
+        }
+        .btn-demo.primary {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            color: white;
+        }
+        .btn-demo.warning {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: white;
+        }
+        .btn-demo.danger {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: white;
+        }
+        .btn-demo.success {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+        }
+        .btn-demo.purple {
+            background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+            color: white;
+        }
+        .result-box {
+            margin-top: 1rem;
+            padding: 1rem;
+            border-radius: 12px;
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .result-box.success {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+        .result-box.info {
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+        }
+        .result-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .result-row:last-child {
+            border-bottom: none;
+        }
+        .result-label {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+        .result-value {
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+        .result-value.success { color: var(--success); }
+        .result-value.primary { color: var(--primary); }
+        .result-value.warning { color: var(--warning); }
+        .result-value.danger { color: var(--danger); }
+
+        /* Circuit Breaker Styles */
+        .circuit-indicator {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 1rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.4s ease;
+            box-shadow: 0 0 30px rgba(16, 185, 129, 0.3);
+        }
+        .circuit-indicator i {
+            font-size: 3rem;
+            color: white;
+        }
+        .circuit-indicator.cerrado {
+            background: linear-gradient(135deg, #10b981, #059669);
+            box-shadow: 0 0 30px rgba(16, 185, 129, 0.3);
+        }
+        .circuit-indicator.abierto {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            box-shadow: 0 0 30px rgba(239, 68, 68, 0.3);
+        }
+        .circuit-indicator.semi_abierto {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            box-shadow: 0 0 30px rgba(245, 158, 11, 0.3);
+        }
+        .circuit-status {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+        .circuit-status h4 {
+            font-size: 1.3rem;
+            margin: 0 0 4px 0;
+        }
+        .circuit-status p {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            margin: 0;
+        }
+        .circuit-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.75rem;
+        }
+        .circuit-log {
+            margin-top: 1rem;
+            padding: 0.75rem;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            max-height: 100px;
+            overflow-y: auto;
+        }
+        .circuit-log-entry {
+            padding: 4px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .circuit-log-entry:last-child {
+            border-bottom: none;
+        }
+
+        /* Observer Styles */
+        .notification-feed {
+            min-height: 150px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        .notification-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            padding: 10px 12px;
+            margin-bottom: 8px;
+            border-radius: 10px;
+            animation: slideIn 0.3s ease;
+        }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        .notification-item.notificacion {
+            background: rgba(16, 185, 129, 0.1);
+            border-left: 3px solid var(--success);
+        }
+        .notification-item.auditoria {
+            background: rgba(59, 130, 246, 0.1);
+            border-left: 3px solid var(--primary);
+        }
+        .notification-item.fraude {
+            background: rgba(239, 68, 68, 0.1);
+            border-left: 3px solid var(--danger);
+        }
+        .notification-icon {
+            font-size: 1.2rem;
+        }
+        .notification-content {
+            flex: 1;
+        }
+        .notification-title {
+            font-weight: 600;
+            font-size: 0.85rem;
+            margin-bottom: 2px;
+        }
+        .notification-desc {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+        .notification-time {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+        }
+
+        /* Health Check Styles */
+        .health-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        .health-item {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1rem;
+            text-align: center;
+            transition: all 0.3s;
+        }
+        .health-item.up {
+            border-color: rgba(16, 185, 129, 0.3);
+            background: rgba(16, 185, 129, 0.05);
+        }
+        .health-item.down {
+            border-color: rgba(239, 68, 68, 0.3);
+            background: rgba(239, 68, 68, 0.05);
+        }
+        .health-icon {
+            width: 40px;
+            height: 40px;
+            margin: 0 auto 8px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+        .health-icon.up {
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--success);
+        }
+        .health-icon.down {
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--danger);
+        }
+        .health-name {
+            font-size: 0.85rem;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+        .health-status {
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        .health-status.up { color: var(--success); }
+        .health-status.down { color: var(--danger); }
+        .health-details {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            padding: 1rem;
+        }
+        .health-detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 6px 0;
+            font-size: 0.8rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .health-detail-row:last-child {
+            border-bottom: none;
+        }
+
+        /* Auto-refresh indicator */
+        .auto-refresh {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            padding: 8px 12px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 8px;
+            margin-top: 1rem;
+        }
+        .auto-refresh i {
+            animation: spin 2s linear infinite;
+        }
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* Range slider */
+        input[type="range"] {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            outline: none;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            background: var(--primary);
+            border-radius: 50%;
+            cursor: pointer;
+        }
+        .range-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+        .range-value {
+            text-align: center;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--primary);
+            margin-top: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+
+        <!-- SIDEBAR -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo">
+                    <div class="logo-icon">
+                        <i class="bi bi-bank"></i>
+                    </div>
+                    <div class="logo-text">
+                        <h1>BilleteSeguro</h1>
+                        <span>Enterprise Banking</span>
+                    </div>
+                </div>
+            </div>
+
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <span class="nav-section-title">Menu Principal</span>
+                    <ul class="nav-menu">
+                        <li class="nav-menu-item">
+                            <a href="/" class="nav-menu-link">
+                                <i class="bi bi-grid-1x2-fill"></i>
+                                <span>Dashboard</span>
+                            </a>
+                        </li>
+                        <li class="nav-menu-item">
+                            <a href="/cuentas" class="nav-menu-link">
+                                <i class="bi bi-wallet2"></i>
+                                <span>Cuentas</span>
+                            </a>
+                        </li>
+                        <li class="nav-menu-item">
+                            <a href="/operaciones" class="nav-menu-link">
+                                <i class="bi bi-arrow-left-right"></i>
+                                <span>Operaciones</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="nav-section">
+                    <span class="nav-section-title">Arquitectura AA4</span>
+                    <ul class="nav-menu">
+                        <li class="nav-menu-item">
+                            <a href="/#patrones-section" class="nav-menu-link">
+                                <i class="bi bi-diagram-3-fill"></i>
+                                <span>Patrones</span>
+                            </a>
+                        </li>
+                        <li class="nav-menu-item">
+                            <a href="/demos" class="nav-menu-link active">
+                                <i class="bi bi-play-circle-fill"></i>
+                                <span>Demos en Vivo</span>
+                                <span class="badge-nav" style="background: linear-gradient(135deg, #ef4444, #f59e0b);">LIVE</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="nav-section">
+                    <span class="nav-section-title">Base de Datos</span>
+                    <ul class="nav-menu">
+                        <li class="nav-menu-item">
+                            <a href="/h2-console" target="_blank" class="nav-menu-link">
+                                <i class="bi bi-database-fill"></i>
+                                <span>Consola H2</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="user-profile">
+                    <div class="user-avatar">AA</div>
+                    <div class="user-info">
+                        <h4>AA4 Demo</h4>
+                        <span>Patrones de Diseno</span>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- MAIN CONTENT -->
+        <div class="main-wrapper">
+
+            <!-- TOP HEADER -->
+            <header class="top-header">
+                <div class="header-left">
+                    <div class="page-title-header">
+                        <h2><i class="bi bi-play-circle-fill"></i> Demos Interactivas</h2>
+                        <p>Patrones de Diseno funcionando en tiempo real</p>
+                    </div>
+                </div>
+                <div class="header-right">
+                    <div class="live-badge">
+                        <i class="bi bi-broadcast"></i> EN VIVO
+                    </div>
+                    <div class="current-date">
+                        <i class="bi bi-calendar3"></i>
+                        <span id="currentDate"></span>
+                    </div>
+                    <div class="notification-wrapper">
+                        <button class="header-btn" onclick="toggleNotifications()">
+                            <i class="bi bi-bell"></i>
+                            <span class="notification-badge" id="notifBadge">0</span>
+                        </button>
+                        <div class="notification-dropdown" id="notificationDropdown">
+                            <div class="notification-header">
+                                <h4><i class="bi bi-bell-fill"></i> Notificaciones</h4>
+                                <button class="btn-clear" onclick="clearNotifications()">Limpiar</button>
+                            </div>
+                            <div class="notification-list" id="notificationList">
+                                <div class="notification-empty">
+                                    <i class="bi bi-inbox"></i>
+                                    <p>No hay notificaciones</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- MAIN CONTENT -->
+            <main class="main-content">
+
+                <!-- Header -->
+                <div class="demo-header">
+                    <h1><i class="bi bi-lightning-charge-fill"></i> Demostraciones en Tiempo Real</h1>
+                    <p>Interactua con los patrones de diseno implementados y observa su funcionamiento</p>
+                    <div class="live-badge">
+                        Actualizacion automatica cada 3 segundos
+                    </div>
+                </div>
+
+                <!-- Demo Grid -->
+                <div class="demo-grid">
+
+                    <!-- ==================== STRATEGY: Calculadora de Interes ==================== -->
+                    <div class="demo-card">
+                        <div class="demo-card-header">
+                            <div class="demo-card-icon" style="background: linear-gradient(135deg, #f59e0b, #d97706); color: white;">
+                                <i class="bi bi-calculator-fill"></i>
+                            </div>
+                            <div class="demo-card-title">
+                                <h3>Calculadora de Interes</h3>
+                                <span>Strategy Pattern - Algoritmos intercambiables</span>
+                            </div>
+                            <span class="badge badge-warning">Strategy</span>
+                        </div>
+                        <div class="demo-card-body">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Tipo de Cuenta</label>
+                                    <select id="strategyTipo" class="form-control">
+                                        <option value="AHORRO">Ahorro (3% anual)</option>
+                                        <option value="CORRIENTE">Corriente (0%)</option>
+                                        <option value="PLAZO_FIJO">Plazo Fijo (8%)</option>
+                                        <option value="SUELDO">Sueldo (0%)</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Monto Inicial (S/.)</label>
+                                    <input type="number" id="strategyMonto" class="form-control" value="10000" min="1">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Periodo (dias)</label>
+                                <input type="range" id="strategyDias" value="365" min="30" max="730">
+                                <div class="range-labels">
+                                    <span>30 dias</span>
+                                    <span>730 dias</span>
+                                </div>
+                                <div class="range-value" id="strategyDiasValue">365 dias (1 ano)</div>
+                            </div>
+                            <button class="btn-demo warning" onclick="calcularInteresStrategy()">
+                                <i class="bi bi-calculator"></i> Calcular Interes
+                            </button>
+                            <div id="strategyResultado" class="result-box success">
+                                <div class="result-row">
+                                    <span class="result-label">Estrategia aplicada:</span>
+                                    <span class="result-value primary" id="strategyNombre">-</span>
+                                </div>
+                                <div class="result-row">
+                                    <span class="result-label">Tasa anual:</span>
+                                    <span class="result-value warning" id="strategyTasa">-</span>
+                                </div>
+                                <div class="result-row">
+                                    <span class="result-label">Interes generado:</span>
+                                    <span class="result-value success" id="strategyInteres">S/. 0.00</span>
+                                </div>
+                                <div class="result-row">
+                                    <span class="result-label">Monto final:</span>
+                                    <span class="result-value primary" id="strategyFinal">S/. 0.00</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ==================== CIRCUIT BREAKER ==================== -->
+                    <div class="demo-card">
+                        <div class="demo-card-header">
+                            <div class="demo-card-icon" style="background: linear-gradient(135deg, #ef4444, #dc2626); color: white;">
+                                <i class="bi bi-lightning-charge-fill"></i>
+                            </div>
+                            <div class="demo-card-title">
+                                <h3>Circuit Breaker</h3>
+                                <span>Patron de Resiliencia - Proteccion contra fallos</span>
+                            </div>
+                            <span id="cbBadge" class="badge badge-success">CERRADO</span>
+                        </div>
+                        <div class="demo-card-body">
+                            <div id="cbIndicator" class="circuit-indicator cerrado">
+                                <i class="bi bi-check-lg"></i>
+                            </div>
+                            <div class="circuit-status">
+                                <h4 id="cbEstado" style="color: var(--success);">CERRADO</h4>
+                                <p id="cbDescripcion">Las llamadas pasan normalmente al servicio</p>
+                            </div>
+                            <div class="circuit-buttons">
+                                <button class="btn-demo danger" onclick="simularFallo()">
+                                    <i class="bi bi-x-circle"></i> Simular Fallo
+                                </button>
+                                <button class="btn-demo success" onclick="resetearCircuito()">
+                                    <i class="bi bi-arrow-counterclockwise"></i> Resetear
+                                </button>
+                            </div>
+                            <div id="cbLog" class="circuit-log">
+                                <div class="circuit-log-entry">Sistema iniciado - Circuit Breaker activo</div>
+                            </div>
+                            <div class="auto-refresh">
+                                <i class="bi bi-arrow-repeat"></i>
+                                Estado actualizado en tiempo real
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ==================== OBSERVER ==================== -->
+                    <div class="demo-card">
+                        <div class="demo-card-header">
+                            <div class="demo-card-icon" style="background: linear-gradient(135deg, #8b5cf6, #7c3aed); color: white;">
+                                <i class="bi bi-bell-fill"></i>
+                            </div>
+                            <div class="demo-card-title">
+                                <h3>Observer en Accion</h3>
+                                <span>Notificaciones en tiempo real - 3 Observers activos</span>
+                            </div>
+                            <span class="badge badge-purple">Observer</span>
+                        </div>
+                        <div class="demo-card-body">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Tipo de Movimiento</label>
+                                    <select id="observerTipo" class="form-control">
+                                        <option value="DEPOSITO">Deposito</option>
+                                        <option value="RETIRO">Retiro</option>
+                                        <option value="TRANSFERENCIA_ENVIADA">Transferencia</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Monto (S/.)</label>
+                                    <input type="number" id="observerMonto" class="form-control" value="5000" min="1">
+                                </div>
+                            </div>
+                            <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 1rem;">
+                                <i class="bi bi-info-circle"></i> Montos mayores a S/. 10,000 activan alerta de fraude
+                            </p>
+                            <button class="btn-demo purple" onclick="simularObserver()">
+                                <i class="bi bi-send"></i> Ejecutar Movimiento
+                            </button>
+                            <div id="observerFeed" class="notification-feed" style="margin-top: 1rem;">
+                                <div style="text-align: center; color: var(--text-muted); padding: 2rem;">
+                                    <i class="bi bi-bell" style="font-size: 2rem; opacity: 0.3;"></i>
+                                    <p style="margin-top: 0.5rem; font-size: 0.85rem;">Ejecuta un movimiento para ver las notificaciones</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ==================== HEALTH CHECK ==================== -->
+                    <div class="demo-card">
+                        <div class="demo-card-header">
+                            <div class="demo-card-icon" style="background: linear-gradient(135deg, #10b981, #059669); color: white;">
+                                <i class="bi bi-heart-pulse-fill"></i>
+                            </div>
+                            <div class="demo-card-title">
+                                <h3>Health Check</h3>
+                                <span>Monitoreo del sistema - Kubernetes-style</span>
+                            </div>
+                            <span id="healthBadge" class="badge badge-success">HEALTHY</span>
+                        </div>
+                        <div class="demo-card-body">
+                            <div class="health-grid">
+                                <div id="healthSistema" class="health-item up">
+                                    <div class="health-icon up">
+                                        <i class="bi bi-cpu-fill"></i>
+                                    </div>
+                                    <div class="health-name">Sistema</div>
+                                    <div class="health-status up">UP</div>
+                                </div>
+                                <div id="healthDB" class="health-item up">
+                                    <div class="health-icon up">
+                                        <i class="bi bi-database-fill"></i>
+                                    </div>
+                                    <div class="health-name">Base de Datos</div>
+                                    <div class="health-status up">UP</div>
+                                </div>
+                                <div id="healthMemoria" class="health-item up">
+                                    <div class="health-icon up">
+                                        <i class="bi bi-memory"></i>
+                                    </div>
+                                    <div class="health-name">Memoria</div>
+                                    <div class="health-status up" id="healthMemoriaStatus">OK</div>
+                                </div>
+                            </div>
+                            <div class="health-details">
+                                <div class="health-detail-row">
+                                    <span>Liveness Probe</span>
+                                    <span id="healthLive" style="color: var(--success);">PASS</span>
+                                </div>
+                                <div class="health-detail-row">
+                                    <span>Readiness Probe</span>
+                                    <span id="healthReady" style="color: var(--success);">PASS</span>
+                                </div>
+                                <div class="health-detail-row">
+                                    <span>Ultima actualizacion</span>
+                                    <span id="healthTime">-</span>
+                                </div>
+                            </div>
+                            <div class="auto-refresh">
+                                <i class="bi bi-arrow-repeat"></i>
+                                Actualizado automaticamente cada 3 segundos
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- API Reference -->
+                <div class="demo-card" style="margin-bottom: 1.5rem;">
+                    <div class="demo-card-header">
+                        <div class="demo-card-icon" style="background: linear-gradient(135deg, #6366f1, #4f46e5); color: white;">
+                            <i class="bi bi-code-slash"></i>
+                        </div>
+                        <div class="demo-card-title">
+                            <h3>API Endpoints Utilizados</h3>
+                            <span>Referencia tecnica de los endpoints interactivos</span>
+                        </div>
+                    </div>
+                    <div class="demo-card-body">
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 0.75rem;">
+                            <div style="display: flex; align-items: center; gap: 10px; padding: 10px; background: rgba(255,255,255,0.03); border-radius: 8px;">
+                                <span class="badge badge-success" style="font-size: 0.65rem;">POST</span>
+                                <code style="color: var(--text-primary); font-size: 0.8rem;">/api/patrones/interactivo/calcular-interes</code>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 10px; padding: 10px; background: rgba(255,255,255,0.03); border-radius: 8px;">
+                                <span class="badge badge-info" style="font-size: 0.65rem;">GET</span>
+                                <code style="color: var(--text-primary); font-size: 0.8rem;">/api/patrones/interactivo/circuit-breaker/estado</code>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 10px; padding: 10px; background: rgba(255,255,255,0.03); border-radius: 8px;">
+                                <span class="badge badge-success" style="font-size: 0.65rem;">POST</span>
+                                <code style="color: var(--text-primary); font-size: 0.8rem;">/api/patrones/interactivo/circuit-breaker/simular-fallo</code>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 10px; padding: 10px; background: rgba(255,255,255,0.03); border-radius: 8px;">
+                                <span class="badge badge-success" style="font-size: 0.65rem;">POST</span>
+                                <code style="color: var(--text-primary); font-size: 0.8rem;">/api/patrones/interactivo/observer/simular</code>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 10px; padding: 10px; background: rgba(255,255,255,0.03); border-radius: 8px;">
+                                <span class="badge badge-info" style="font-size: 0.65rem;">GET</span>
+                                <code style="color: var(--text-primary); font-size: 0.8rem;">/api/patrones/interactivo/health</code>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 10px; padding: 10px; background: rgba(255,255,255,0.03); border-radius: 8px;">
+                                <span class="badge badge-info" style="font-size: 0.65rem;">GET</span>
+                                <code style="color: var(--text-primary); font-size: 0.8rem;">/health</code>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </main>
+
+            <!-- FOOTER -->
+            <footer class="main-footer">
+                <div>
+                    <i class="bi bi-lightning-charge-fill"></i> Demos en Tiempo Real - Patrones de Diseno AA4
+                </div>
+                <div class="footer-links">
+                    <a href="/">Dashboard</a>
+                    <a href="/#patrones-section">Patrones</a>
+                    <a href="/api/patrones" target="_blank">API JSON</a>
+                </div>
+            </footer>
+
+        </div>
+    </div>
+
+    <script>
+        // ==================== INICIALIZACION ====================
+        const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+        document.getElementById('currentDate').textContent = new Date().toLocaleDateString('es-PE', options);
+
+        // ==================== STRATEGY: Calculadora de Interes ====================
+        document.getElementById('strategyDias').addEventListener('input', function() {
+            const dias = this.value;
+            const anos = (dias / 365).toFixed(1);
+            document.getElementById('strategyDiasValue').textContent =
+                `${dias} dias (${anos} ${anos == 1 ? 'ano' : 'anos'})`;
+        });
+
+        async function calcularInteresStrategy() {
+            const tipo = document.getElementById('strategyTipo').value;
+            const monto = document.getElementById('strategyMonto').value;
+            const dias = document.getElementById('strategyDias').value;
+
+            try {
+                const response = await fetch(
+                    `/api/patrones/interactivo/calcular-interes?tipoCuenta=${tipo}&monto=${monto}&dias=${dias}`,
+                    { method: 'POST' }
+                );
+                const result = await response.json();
+
+                if (result.success && result.data.exito) {
+                    const data = result.data;
+                    document.getElementById('strategyNombre').textContent = data.estrategia;
+                    document.getElementById('strategyTasa').textContent = (data.tasaAnual * 100).toFixed(1) + '%';
+                    document.getElementById('strategyInteres').textContent = `S/. ${data.interesGenerado.toFixed(2)}`;
+                    document.getElementById('strategyFinal').textContent = `S/. ${data.montoFinal.toFixed(2)}`;
+                    document.getElementById('strategyResultado').style.display = 'block';
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        // ==================== CIRCUIT BREAKER ====================
+        let cbLogs = [];
+
+        async function actualizarCircuitBreaker() {
+            try {
+                const response = await fetch('/api/patrones/interactivo/circuit-breaker/estado?servicio=servicio-demo');
+                const result = await response.json();
+
+                if (result.success) {
+                    const data = result.data;
+                    actualizarUICircuitBreaker(data.estado);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        function actualizarUICircuitBreaker(estado) {
+            const indicator = document.getElementById('cbIndicator');
+            const badge = document.getElementById('cbBadge');
+            const estadoText = document.getElementById('cbEstado');
+            const desc = document.getElementById('cbDescripcion');
+
+            const configs = {
+                'CERRADO': {
+                    icon: 'bi-check-lg',
+                    badgeClass: 'badge-success',
+                    indicatorClass: 'cerrado',
+                    color: 'var(--success)',
+                    desc: 'Las llamadas pasan normalmente al servicio'
+                },
+                'ABIERTO': {
+                    icon: 'bi-x-lg',
+                    badgeClass: 'badge-danger',
+                    indicatorClass: 'abierto',
+                    color: 'var(--danger)',
+                    desc: 'Llamadas rechazadas - Sistema protegido (fail-fast)'
+                },
+                'SEMI_ABIERTO': {
+                    icon: 'bi-exclamation-triangle',
+                    badgeClass: 'badge-warning',
+                    indicatorClass: 'semi_abierto',
+                    color: 'var(--warning)',
+                    desc: 'Probando recuperacion - Algunas llamadas de prueba'
+                }
+            };
+
+            const config = configs[estado] || configs['CERRADO'];
+
+            indicator.className = `circuit-indicator ${config.indicatorClass}`;
+            indicator.innerHTML = `<i class="bi ${config.icon}"></i>`;
+            badge.className = `badge ${config.badgeClass}`;
+            badge.textContent = estado;
+            estadoText.textContent = estado;
+            estadoText.style.color = config.color;
+            desc.textContent = config.desc;
+        }
+
+        async function simularFallo() {
+            try {
+                const response = await fetch('/api/patrones/interactivo/circuit-breaker/simular-fallo?servicio=servicio-demo', {
+                    method: 'POST'
+                });
+                const result = await response.json();
+
+                if (result.success) {
+                    const data = result.data;
+                    actualizarUICircuitBreaker(data.estadoDespues);
+                    agregarLogCB(`Fallo simulado: ${data.estadoAntes} -> ${data.estadoDespues}`);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        async function resetearCircuito() {
+            try {
+                const response = await fetch('/api/patrones/interactivo/circuit-breaker/resetear?servicio=servicio-demo', {
+                    method: 'POST'
+                });
+                const result = await response.json();
+
+                if (result.success) {
+                    const data = result.data;
+                    actualizarUICircuitBreaker(data.estadoDespues);
+                    agregarLogCB(`Reset aplicado: ${data.estadoAntes} -> ${data.estadoDespues}`);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        function agregarLogCB(mensaje) {
+            const now = new Date().toLocaleTimeString();
+            cbLogs.unshift(`[${now}] ${mensaje}`);
+            if (cbLogs.length > 5) cbLogs.pop();
+
+            const logContainer = document.getElementById('cbLog');
+            logContainer.innerHTML = cbLogs.map(log =>
+                `<div class="circuit-log-entry">${log}</div>`
+            ).join('');
+        }
+
+        // ==================== OBSERVER ====================
+        async function simularObserver() {
+            const tipo = document.getElementById('observerTipo').value;
+            const monto = parseFloat(document.getElementById('observerMonto').value);
+
+            try {
+                const response = await fetch(
+                    `/api/patrones/interactivo/observer/simular?tipoMovimiento=${tipo}&monto=${monto}`,
+                    { method: 'POST' }
+                );
+                const result = await response.json();
+
+                if (result.success && result.data.exito) {
+                    const data = result.data;
+                    const feed = document.getElementById('observerFeed');
+                    feed.innerHTML = '';
+
+                    // Simular notificaciones llegando con delay
+                    const notificaciones = [
+                        { tipo: 'notificacion', icon: 'bi-check-circle-fill', color: 'var(--success)',
+                          titulo: 'NotificacionObserver', desc: `Usuario notificado del ${tipo}` },
+                        { tipo: 'auditoria', icon: 'bi-journal-text', color: 'var(--primary)',
+                          titulo: 'AuditoriaObserver', desc: 'Log registrado en sistema de auditoria' }
+                    ];
+
+                    if (data.alertaFraude) {
+                        notificaciones.push({
+                            tipo: 'fraude', icon: 'bi-exclamation-triangle-fill', color: 'var(--danger)',
+                            titulo: 'FraudeObserver', desc: `ALERTA: Monto sospechoso S/. ${monto} detectado`
+                        });
+                    }
+
+                    // Mostrar en feed inline
+                    notificaciones.forEach((notif, index) => {
+                        setTimeout(() => {
+                            const div = document.createElement('div');
+                            div.className = `notification-item ${notif.tipo}`;
+                            div.innerHTML = `
+                                <div class="notification-icon" style="color: ${notif.color};">
+                                    <i class="bi ${notif.icon}"></i>
+                                </div>
+                                <div class="notification-content">
+                                    <div class="notification-title">${notif.titulo}</div>
+                                    <div class="notification-desc">${notif.desc}</div>
+                                </div>
+                                <div class="notification-time">${new Date().toLocaleTimeString()}</div>
+                            `;
+                            feed.appendChild(div);
+                        }, index * 400);
+                    });
+
+                    // TAMBIEN mostrar como Toast notifications globales (Observer Pattern real)
+                    toastSystem.showBankingNotification(tipo, {
+                        cuenta: 'DEMO-001',
+                        monto: monto,
+                        saldoAnterior: 10000,
+                        saldoNuevo: tipo === 'DEPOSITO' ? 10000 + monto : 10000 - monto
+                    });
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        // ==================== HEALTH CHECK ====================
+        async function actualizarHealth() {
+            try {
+                const response = await fetch('/api/patrones/interactivo/health');
+                const result = await response.json();
+
+                if (result.success) {
+                    const data = result.data;
+
+                    // Actualizar indicadores
+                    const memoriaOk = data.memoriaOk !== false;
+                    document.getElementById('healthMemoriaStatus').textContent = memoriaOk ? 'OK' : 'LOW';
+                    document.getElementById('healthMemoriaStatus').style.color = memoriaOk ? 'var(--success)' : 'var(--warning)';
+
+                    // Actualizar timestamp
+                    document.getElementById('healthTime').textContent = new Date().toLocaleTimeString();
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        // ==================== AUTO-REFRESH ====================
+        document.addEventListener('DOMContentLoaded', function() {
+            // Cargar estado inicial
+            actualizarCircuitBreaker();
+            actualizarHealth();
+
+            // Auto-refresh cada 3 segundos
+            setInterval(() => {
+                actualizarCircuitBreaker();
+                actualizarHealth();
+            }, 3000);
+        });
+    </script>
+</body>
+</html>

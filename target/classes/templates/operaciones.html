@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Operaciones | BilleteSeguro - Sistema Bancario</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link th:href="@{/css/style.css}" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+
+        <!-- SIDEBAR -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo">
+                    <div class="logo-icon">
+                        <i class="bi bi-bank"></i>
+                    </div>
+                    <div class="logo-text">
+                        <h1>BilleteSeguro</h1>
+                        <span>Enterprise Banking</span>
+                    </div>
+                </div>
+            </div>
+
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <span class="nav-section-title">Menu Principal</span>
+                    <ul class="nav-menu">
+                        <li class="nav-menu-item">
+                            <a href="/" class="nav-menu-link">
+                                <i class="bi bi-grid-1x2-fill"></i>
+                                <span>Dashboard</span>
+                            </a>
+                        </li>
+                        <li class="nav-menu-item">
+                            <a href="/cuentas" class="nav-menu-link">
+                                <i class="bi bi-wallet2"></i>
+                                <span>Cuentas</span>
+                            </a>
+                        </li>
+                        <li class="nav-menu-item">
+                            <a href="/operaciones" class="nav-menu-link active">
+                                <i class="bi bi-arrow-left-right"></i>
+                                <span>Operaciones</span>
+                            </a>
+                        </li>
+                        <li class="nav-menu-item">
+                            <a href="/movimientos" class="nav-menu-link">
+                                <i class="bi bi-clock-history"></i>
+                                <span>Movimientos</span>
+                            </a>
+                        </li>
+                        <li class="nav-menu-item">
+                            <a href="/intereses" class="nav-menu-link">
+                                <i class="bi bi-graph-up-arrow"></i>
+                                <span>Intereses</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="nav-section">
+                    <span class="nav-section-title">Arquitectura AA4</span>
+                    <ul class="nav-menu">
+                        <li class="nav-menu-item">
+                            <a href="/#patrones-section" class="nav-menu-link">
+                                <i class="bi bi-diagram-3-fill"></i>
+                                <span>Patrones de Diseño</span>
+                            </a>
+                        </li>
+                        <li class="nav-menu-item">
+                            <a href="/demos" class="nav-menu-link">
+                                <i class="bi bi-play-circle-fill"></i>
+                                <span>Demos en Vivo</span>
+                                <span class="badge-nav" style="background: linear-gradient(135deg, #f59e0b, #ef4444);">LIVE</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="nav-section">
+                    <span class="nav-section-title">Base de Datos</span>
+                    <ul class="nav-menu">
+                        <li class="nav-menu-item">
+                            <a href="/h2-console" target="_blank" class="nav-menu-link">
+                                <i class="bi bi-database-fill"></i>
+                                <span>Consola H2</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="user-profile">
+                    <div class="user-avatar">AD</div>
+                    <div class="user-info">
+                        <h4>Administrador</h4>
+                        <span>admin@billeteseguro.com</span>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- MAIN CONTENT WRAPPER -->
+        <div class="main-wrapper">
+
+            <!-- TOP HEADER -->
+            <header class="top-header">
+                <div class="header-left">
+                    <div class="page-title-header">
+                        <h2><i class="bi bi-cash-stack text-primary"></i> Operaciones Bancarias</h2>
+                        <p>Realiza depositos, retiros y transferencias entre cuentas</p>
+                    </div>
+                </div>
+                <div class="header-right">
+                    <div class="notification-wrapper">
+                        <button class="header-btn" id="notificationBtn" onclick="toggleNotifications()">
+                            <i class="bi bi-bell"></i>
+                            <span class="notification-badge" id="notifBadge">0</span>
+                        </button>
+                        <div class="notification-dropdown" id="notificationDropdown">
+                            <div class="notification-header">
+                                <h4><i class="bi bi-bell-fill"></i> Notificaciones</h4>
+                                <button class="btn-clear" onclick="clearNotifications()">Limpiar</button>
+                            </div>
+                            <div class="notification-list" id="notificationList">
+                                <div class="notification-empty">
+                                    <i class="bi bi-inbox"></i>
+                                    <p>No hay notificaciones</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- MAIN CONTENT -->
+            <main class="main-content">
+
+                <!-- OPERATIONS GRID -->
+                <div class="grid-3 mb-4">
+                    <!-- DEPOSITO -->
+                    <div class="content-card">
+                        <div class="card-header">
+                            <div class="card-header-left">
+                                <div class="card-icon success">
+                                    <i class="bi bi-box-arrow-in-down"></i>
+                                </div>
+                                <div>
+                                    <div class="card-title">Deposito</div>
+                                    <div class="card-subtitle">Agregar fondos a cuenta</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <form id="formDeposito">
+                                <div class="form-group">
+                                    <label class="form-label">Cuenta Destino</label>
+                                    <select class="form-control" id="cuentaDeposito" required>
+                                        <option value="">Seleccionar cuenta...</option>
+                                        <option th:each="cuenta : ${cuentas}"
+                                                th:value="${cuenta.numeroCuenta}"
+                                                th:text="${cuenta.numeroCuenta + ' - ' + cuenta.titular}">
+                                        </option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Monto (S/.)</label>
+                                    <div class="input-group">
+                                        <i class="bi bi-currency-dollar input-icon"></i>
+                                        <input type="number" class="form-control" id="montoDeposito"
+                                               step="0.01" min="0.01" required placeholder="0.00">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Descripcion</label>
+                                    <input type="text" class="form-control" id="descDeposito"
+                                           placeholder="Opcional">
+                                </div>
+                                <button type="submit" class="btn btn-success btn-block">
+                                    <i class="bi bi-check-lg"></i> Depositar
+                                </button>
+                            </form>
+                            <div id="mensajeDeposito" class="mt-3"></div>
+                        </div>
+                    </div>
+
+                    <!-- RETIRO -->
+                    <div class="content-card">
+                        <div class="card-header">
+                            <div class="card-header-left">
+                                <div class="card-icon warning">
+                                    <i class="bi bi-box-arrow-up"></i>
+                                </div>
+                                <div>
+                                    <div class="card-title">Retiro</div>
+                                    <div class="card-subtitle">Retirar fondos de cuenta</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <form id="formRetiro">
+                                <div class="form-group">
+                                    <label class="form-label">Cuenta Origen</label>
+                                    <select class="form-control" id="cuentaRetiro" required>
+                                        <option value="">Seleccionar cuenta...</option>
+                                        <option th:each="cuenta : ${cuentas}"
+                                                th:value="${cuenta.numeroCuenta}"
+                                                th:text="${cuenta.numeroCuenta + ' - S/.' + #numbers.formatDecimal(cuenta.saldo, 1, 2)}">
+                                        </option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Monto (S/.)</label>
+                                    <div class="input-group">
+                                        <i class="bi bi-currency-dollar input-icon"></i>
+                                        <input type="number" class="form-control" id="montoRetiro"
+                                               step="0.01" min="0.01" required placeholder="0.00">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Descripcion</label>
+                                    <input type="text" class="form-control" id="descRetiro"
+                                           placeholder="Opcional">
+                                </div>
+                                <button type="submit" class="btn btn-warning btn-block">
+                                    <i class="bi bi-check-lg"></i> Retirar
+                                </button>
+                            </form>
+                            <div id="mensajeRetiro" class="mt-3"></div>
+                        </div>
+                    </div>
+
+                    <!-- TRANSFERENCIA -->
+                    <div class="content-card">
+                        <div class="card-header">
+                            <div class="card-header-left">
+                                <div class="card-icon info">
+                                    <i class="bi bi-send"></i>
+                                </div>
+                                <div>
+                                    <div class="card-title">Transferencia</div>
+                                    <div class="card-subtitle">Enviar entre cuentas</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <form id="formTransferencia">
+                                <div class="form-group">
+                                    <label class="form-label">Cuenta Origen</label>
+                                    <select class="form-control" id="cuentaOrigen" required>
+                                        <option value="">Seleccionar cuenta...</option>
+                                        <option th:each="cuenta : ${cuentas}"
+                                                th:value="${cuenta.numeroCuenta}"
+                                                th:text="${cuenta.numeroCuenta + ' - S/.' + #numbers.formatDecimal(cuenta.saldo, 1, 2)}">
+                                        </option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Cuenta Destino</label>
+                                    <select class="form-control" id="cuentaDestino" required>
+                                        <option value="">Seleccionar cuenta...</option>
+                                        <option th:each="cuenta : ${cuentas}"
+                                                th:value="${cuenta.numeroCuenta}"
+                                                th:text="${cuenta.numeroCuenta + ' - ' + cuenta.titular}">
+                                        </option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Monto (S/.)</label>
+                                    <div class="input-group">
+                                        <i class="bi bi-currency-dollar input-icon"></i>
+                                        <input type="number" class="form-control" id="montoTransferencia"
+                                               step="0.01" min="0.01" required placeholder="0.00">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Descripcion</label>
+                                    <input type="text" class="form-control" id="descTransferencia"
+                                           placeholder="Opcional">
+                                </div>
+                                <button type="submit" class="btn btn-info btn-block">
+                                    <i class="bi bi-send"></i> Transferir
+                                </button>
+                            </form>
+                            <div id="mensajeTransferencia" class="mt-3"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CONSULTAR SALDO -->
+                <div class="grid-2">
+                    <div class="content-card">
+                        <div class="card-header">
+                            <div class="card-header-left">
+                                <div class="card-icon purple">
+                                    <i class="bi bi-search"></i>
+                                </div>
+                                <div>
+                                    <div class="card-title">Consultar Saldo</div>
+                                    <div class="card-subtitle">Ver saldo actual de una cuenta</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-flex gap-3 align-center" style="flex-wrap: wrap;">
+                                <div style="flex: 1; min-width: 200px;">
+                                    <select class="form-control" id="cuentaSaldo">
+                                        <option value="">Seleccionar cuenta...</option>
+                                        <option th:each="cuenta : ${cuentas}"
+                                                th:value="${cuenta.numeroCuenta}"
+                                                th:text="${cuenta.numeroCuenta + ' - ' + cuenta.titular}">
+                                        </option>
+                                    </select>
+                                </div>
+                                <button class="btn btn-primary" onclick="consultarSaldo()">
+                                    <i class="bi bi-search"></i> Consultar
+                                </button>
+                            </div>
+                            <div id="resultadoSaldo" class="mt-3"></div>
+                        </div>
+                    </div>
+
+                    <div class="content-card">
+                        <div class="card-header">
+                            <div class="card-header-left">
+                                <div class="card-icon success">
+                                    <i class="bi bi-info-circle"></i>
+                                </div>
+                                <div>
+                                    <div class="card-title">Informacion</div>
+                                    <div class="card-subtitle">Ayuda sobre operaciones</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="alert alert-info mb-2">
+                                <i class="bi bi-lightbulb"></i>
+                                <span><strong>Deposito:</strong> Agrega fondos a cualquier cuenta activa.</span>
+                            </div>
+                            <div class="alert alert-warning mb-2">
+                                <i class="bi bi-exclamation-triangle"></i>
+                                <span><strong>Retiro:</strong> El monto no puede exceder el saldo disponible.</span>
+                            </div>
+                            <div class="alert alert-success mb-0">
+                                <i class="bi bi-shield-check"></i>
+                                <span><strong>Transferencia:</strong> Operacion segura y atomica entre cuentas.</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </main>
+
+            <!-- FOOTER -->
+            <footer class="main-footer">
+                <div>
+                    <i class="bi bi-shield-check"></i> BilleteSeguro &copy; 2024 - Sistema Bancario
+                </div>
+                <div class="footer-links">
+                    <a href="/">Dashboard</a>
+                    <a href="/cuentas">Cuentas</a>
+                    <a href="/movimientos">Movimientos</a>
+                </div>
+            </footer>
+
+        </div>
+    </div>
+
+    <script th:src="@{/js/toast.js}"></script>
+    <script>
+        const API_URL = '/api';
+
+        function mostrarMensaje(elementId, mensaje, tipo) {
+            const element = document.getElementById(elementId);
+            element.innerHTML = `<div class="alert alert-${tipo}">${mensaje}</div>`;
+            setTimeout(() => element.innerHTML = '', 5000);
+        }
+
+        // Helper para mostrar notificaciones toast de forma segura
+        function mostrarToast(tipo, datos) {
+            if (window.toastSystem && typeof window.toastSystem.showBankingNotification === 'function') {
+                window.toastSystem.showBankingNotification(tipo, datos);
+            }
+        }
+
+        // DEPOSITO
+        document.getElementById('formDeposito').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const data = {
+                numeroCuenta: document.getElementById('cuentaDeposito').value,
+                monto: parseFloat(document.getElementById('montoDeposito').value),
+                descripcion: document.getElementById('descDeposito').value || 'Deposito'
+            };
+
+            try {
+                const response = await fetch(`${API_URL}/operaciones/deposito`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                const result = await response.json();
+
+                if (response.ok) {
+                    mostrarMensaje('mensajeDeposito',
+                        `<i class="bi bi-check-circle-fill"></i> Deposito exitoso! Nuevo saldo: <strong>S/. ${result.movimiento.saldoPosterior.toFixed(2)}</strong>`, 'success');
+
+                    // Observer Pattern - Notificaciones en tiempo real
+                    mostrarToast('DEPOSITO', {
+                        cuenta: data.numeroCuenta,
+                        monto: data.monto,
+                        saldoAnterior: result.movimiento.saldoAnterior,
+                        saldoNuevo: result.movimiento.saldoPosterior
+                    });
+
+                    this.reset();
+                } else {
+                    mostrarMensaje('mensajeDeposito',
+                        `<i class="bi bi-x-circle-fill"></i> ${result.error || 'Error en el deposito'}`, 'danger');
+                }
+            } catch (error) {
+                console.error('Error deposito:', error);
+                mostrarMensaje('mensajeDeposito', `<i class="bi bi-exclamation-triangle-fill"></i> Error de conexion: ${error.message}`, 'danger');
+            }
+        });
+
+        // RETIRO
+        document.getElementById('formRetiro').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const data = {
+                numeroCuenta: document.getElementById('cuentaRetiro').value,
+                monto: parseFloat(document.getElementById('montoRetiro').value),
+                descripcion: document.getElementById('descRetiro').value || 'Retiro'
+            };
+
+            try {
+                const response = await fetch(`${API_URL}/operaciones/retiro`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                const result = await response.json();
+
+                if (response.ok) {
+                    mostrarMensaje('mensajeRetiro',
+                        `<i class="bi bi-check-circle-fill"></i> Retiro exitoso! Nuevo saldo: <strong>S/. ${result.movimiento.saldoPosterior.toFixed(2)}</strong>`, 'success');
+
+                    // Observer Pattern - Notificaciones en tiempo real
+                    mostrarToast('RETIRO', {
+                        cuenta: data.numeroCuenta,
+                        monto: data.monto,
+                        saldoAnterior: result.movimiento.saldoAnterior,
+                        saldoNuevo: result.movimiento.saldoPosterior
+                    });
+
+                    this.reset();
+                } else {
+                    mostrarMensaje('mensajeRetiro',
+                        `<i class="bi bi-x-circle-fill"></i> ${result.error || 'Saldo insuficiente'}`, 'danger');
+                }
+            } catch (error) {
+                console.error('Error retiro:', error);
+                mostrarMensaje('mensajeRetiro', `<i class="bi bi-exclamation-triangle-fill"></i> Error de conexion: ${error.message}`, 'danger');
+            }
+        });
+
+        // TRANSFERENCIA
+        document.getElementById('formTransferencia').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const cuentaOrigen = document.getElementById('cuentaOrigen').value;
+            const cuentaDestino = document.getElementById('cuentaDestino').value;
+
+            if (cuentaOrigen === cuentaDestino) {
+                mostrarMensaje('mensajeTransferencia',
+                    '<i class="bi bi-exclamation-triangle-fill"></i> Las cuentas origen y destino deben ser diferentes', 'warning');
+                return;
+            }
+
+            const data = {
+                cuentaOrigen: cuentaOrigen,
+                cuentaDestino: cuentaDestino,
+                monto: parseFloat(document.getElementById('montoTransferencia').value),
+                descripcion: document.getElementById('descTransferencia').value || 'Transferencia'
+            };
+
+            try {
+                const response = await fetch(`${API_URL}/operaciones/transferencia`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                const result = await response.json();
+
+                if (response.ok) {
+                    mostrarMensaje('mensajeTransferencia',
+                        `<i class="bi bi-check-circle-fill"></i> Transferencia exitosa por <strong>S/. ${data.monto.toFixed(2)}</strong>`, 'success');
+
+                    // Observer Pattern - Notificaciones en tiempo real para transferencia
+                    mostrarToast('TRANSFERENCIA_ENVIADA', {
+                        cuenta: data.cuentaOrigen,
+                        monto: data.monto,
+                        saldoAnterior: result.movimientoOrigen?.saldoAnterior || 0,
+                        saldoNuevo: result.movimientoOrigen?.saldoPosterior || 0
+                    });
+
+                    setTimeout(() => {
+                        mostrarToast('TRANSFERENCIA_RECIBIDA', {
+                            cuenta: data.cuentaDestino,
+                            monto: data.monto,
+                            saldoAnterior: result.movimientoDestino?.saldoAnterior || 0,
+                            saldoNuevo: result.movimientoDestino?.saldoPosterior || 0
+                        });
+                    }, 600);
+
+                    this.reset();
+                } else {
+                    mostrarMensaje('mensajeTransferencia',
+                        `<i class="bi bi-x-circle-fill"></i> ${result.error || 'Error en transferencia'}`, 'danger');
+                }
+            } catch (error) {
+                console.error('Error transferencia:', error);
+                mostrarMensaje('mensajeTransferencia', `<i class="bi bi-exclamation-triangle-fill"></i> Error de conexion: ${error.message}`, 'danger');
+            }
+        });
+
+        // CONSULTAR SALDO
+        async function consultarSaldo() {
+            const numeroCuenta = document.getElementById('cuentaSaldo').value;
+            if (!numeroCuenta) {
+                mostrarMensaje('resultadoSaldo', '<i class="bi bi-exclamation-triangle-fill"></i> Seleccione una cuenta', 'warning');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/cuentas/${numeroCuenta}/saldo`);
+                if (response.ok) {
+                    const data = await response.json();
+                    document.getElementById('resultadoSaldo').innerHTML = `
+                        <div class="account-summary" style="margin-top: 15px;">
+                            <div class="account-summary-grid" style="grid-template-columns: 1fr 1fr;">
+                                <div class="account-item">
+                                    <label><i class="bi bi-credit-card"></i> Cuenta</label>
+                                    <h3>${data.numeroCuenta}</h3>
+                                </div>
+                                <div class="account-item balance" style="text-align: right;">
+                                    <label><i class="bi bi-cash-coin"></i> Saldo Disponible</label>
+                                    <h3>S/. ${data.saldo.toFixed(2)}</h3>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    mostrarMensaje('resultadoSaldo', '<i class="bi bi-x-circle-fill"></i> Cuenta no encontrada', 'danger');
+                }
+            } catch (error) {
+                console.error('Error consulta saldo:', error);
+                mostrarMensaje('resultadoSaldo', `<i class="bi bi-exclamation-triangle-fill"></i> Error de conexion: ${error.message}`, 'danger');
+            }
+        }
+
+        // Funcion para mostrar notificaciones (usa el sistema global de toast.js)
+        function mostrarToast(tipo, datos) {
+            if (window.toastSystem && typeof window.toastSystem.showBankingNotification === 'function') {
+                window.toastSystem.showBankingNotification(tipo, datos);
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cuentas | BilleteSeguro - Sistema Bancario</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link th:href="@{/css/style.css}" rel="stylesheet">
+    <script th:src="@{/js/toast.js}"></script>
+</head>
+<body>
+    <div class="app-container">
+
+        <!-- SIDEBAR -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo">
+                    <div class="logo-icon">
+                        <i class="bi bi-bank"></i>
+                    </div>
+                    <div class="logo-text">
+                        <h1>BilleteSeguro</h1>
+                        <span>Enterprise Banking</span>
+                    </div>
+                </div>
+            </div>
+
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <span class="nav-section-title">Menu Principal</span>
+                    <ul class="nav-menu">
+                        <li class="nav-menu-item">
+                            <a href="/" class="nav-menu-link">
+                                <i class="bi bi-grid-1x2-fill"></i>
+                                <span>Dashboard</span>
+                            </a>
+                        </li>
+                        <li class="nav-menu-item">
+                            <a href="/cuentas" class="nav-menu-link active">
+                                <i class="bi bi-wallet2"></i>
+                                <span>Cuentas</span>
+                            </a>
+                        </li>
+                        <li class="nav-menu-item">
+                            <a href="/operaciones" class="nav-menu-link">
+                                <i class="bi bi-arrow-left-right"></i>
+                                <span>Operaciones</span>
+                            </a>
+                        </li>
+                        <li class="nav-menu-item">
+                            <a href="/movimientos" class="nav-menu-link">
+                                <i class="bi bi-clock-history"></i>
+                                <span>Movimientos</span>
+                            </a>
+                        </li>
+                        <li class="nav-menu-item">
+                            <a href="/intereses" class="nav-menu-link">
+                                <i class="bi bi-graph-up-arrow"></i>
+                                <span>Intereses</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="nav-section">
+                    <span class="nav-section-title">Arquitectura AA4</span>
+                    <ul class="nav-menu">
+                        <li class="nav-menu-item">
+                            <a href="/#patrones-section" class="nav-menu-link">
+                                <i class="bi bi-diagram-3-fill"></i>
+                                <span>Patrones de Diseño</span>
+                            </a>
+                        </li>
+                        <li class="nav-menu-item">
+                            <a href="/demos" class="nav-menu-link">
+                                <i class="bi bi-play-circle-fill"></i>
+                                <span>Demos en Vivo</span>
+                                <span class="badge-nav" style="background: linear-gradient(135deg, #f59e0b, #ef4444);">LIVE</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="nav-section">
+                    <span class="nav-section-title">Base de Datos</span>
+                    <ul class="nav-menu">
+                        <li class="nav-menu-item">
+                            <a href="/h2-console" target="_blank" class="nav-menu-link">
+                                <i class="bi bi-database-fill"></i>
+                                <span>Consola H2</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="user-profile">
+                    <div class="user-avatar">AD</div>
+                    <div class="user-info">
+                        <h4>Administrador</h4>
+                        <span>admin@billeteseguro.com</span>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- MAIN CONTENT WRAPPER -->
+        <div class="main-wrapper">
+
+            <!-- TOP HEADER -->
+            <header class="top-header">
+                <div class="header-left">
+                    <div class="page-title-header">
+                        <h2><i class="bi bi-wallet2 text-primary"></i> Gestion de Cuentas</h2>
+                        <p>Crea y administra las cuentas bancarias del sistema</p>
+                    </div>
+                </div>
+                <div class="header-right">
+                    <div class="notification-wrapper">
+                        <button class="header-btn" onclick="toggleNotifications()">
+                            <i class="bi bi-bell"></i>
+                            <span class="notification-badge" id="notifBadge">0</span>
+                        </button>
+                        <div class="notification-dropdown" id="notificationDropdown">
+                            <div class="notification-header">
+                                <h4><i class="bi bi-bell-fill"></i> Notificaciones</h4>
+                                <button class="btn-clear" onclick="clearNotifications()">Limpiar</button>
+                            </div>
+                            <div class="notification-list" id="notificationList">
+                                <div class="notification-empty">
+                                    <i class="bi bi-inbox"></i>
+                                    <p>No hay notificaciones</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- MAIN CONTENT -->
+            <main class="main-content">
+
+                <div class="grid-1-2">
+                    <!-- FORM: Nueva Cuenta -->
+                    <div class="content-card">
+                        <div class="card-header">
+                            <div class="card-header-left">
+                                <div class="card-icon success">
+                                    <i class="bi bi-plus-circle"></i>
+                                </div>
+                                <div>
+                                    <div class="card-title">Nueva Cuenta</div>
+                                    <div class="card-subtitle">Registrar cuenta bancaria</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <form id="formCuenta">
+                                <div class="form-group">
+                                    <label class="form-label">
+                                        Nombre del Titular <span class="required">*</span>
+                                    </label>
+                                    <div class="input-group">
+                                        <i class="bi bi-person input-icon"></i>
+                                        <input type="text" class="form-control" id="titular"
+                                               required placeholder="Ej: Juan Perez Garcia">
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="form-label">
+                                        DNI <span class="required">*</span>
+                                    </label>
+                                    <div class="input-group">
+                                        <i class="bi bi-credit-card input-icon"></i>
+                                        <input type="text" class="form-control" id="dni"
+                                               required placeholder="Ej: 12345678" maxlength="8">
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="form-label">
+                                        Tipo de Cuenta <span class="required">*</span>
+                                    </label>
+                                    <select class="form-control" id="tipoCuenta" required>
+                                        <option value="">Seleccionar tipo de cuenta...</option>
+                                        <option value="AHORRO">Cuenta de Ahorro</option>
+                                        <option value="CORRIENTE">Cuenta Corriente</option>
+                                    </select>
+                                </div>
+
+                                <button type="submit" class="btn btn-success btn-block btn-lg">
+                                    <i class="bi bi-check-lg"></i>
+                                    Crear Cuenta
+                                </button>
+                            </form>
+
+                            <div id="mensajeCuenta" class="mt-3"></div>
+                        </div>
+                    </div>
+
+                    <!-- TABLE: Lista de Cuentas -->
+                    <div class="content-card">
+                        <div class="card-header">
+                            <div class="card-header-left">
+                                <div class="card-icon primary">
+                                    <i class="bi bi-list-ul"></i>
+                                </div>
+                                <div>
+                                    <div class="card-title">Cuentas Registradas</div>
+                                    <div class="card-subtitle" th:text="${#lists.size(cuentas)} + ' cuentas en el sistema'">0 cuentas</div>
+                                </div>
+                            </div>
+                            <button class="btn btn-outline btn-sm" onclick="location.reload()">
+                                <i class="bi bi-arrow-clockwise"></i> Actualizar
+                            </button>
+                        </div>
+                        <div class="card-body no-padding">
+                            <div class="table-wrapper">
+                                <table class="data-table">
+                                    <thead>
+                                        <tr>
+                                            <th>N Cuenta</th>
+                                            <th>Titular</th>
+                                            <th>DNI</th>
+                                            <th>Tipo</th>
+                                            <th>Saldo</th>
+                                            <th>Estado</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr th:each="cuenta : ${cuentas}">
+                                            <td>
+                                                <strong class="text-primary" th:text="${cuenta.numeroCuenta}"></strong>
+                                            </td>
+                                            <td>
+                                                <div class="d-flex align-center gap-2">
+                                                    <div class="user-avatar" style="width:32px;height:32px;font-size:0.7rem;"
+                                                         th:text="${#strings.substring(cuenta.titular, 0, 2).toUpperCase()}"></div>
+                                                    <span th:text="${cuenta.titular}"></span>
+                                                </div>
+                                            </td>
+                                            <td th:text="${cuenta.dni}"></td>
+                                            <td>
+                                                <span class="badge"
+                                                      th:classappend="${cuenta.tipoCuenta.toString() == 'AHORRO'} ? 'badge-info' : 'badge-purple'"
+                                                      th:text="${cuenta.tipoCuenta}"></span>
+                                            </td>
+                                            <td>
+                                                <strong class="text-success"
+                                                        th:text="'S/. ' + ${#numbers.formatDecimal(cuenta.saldo, 1, 2)}"></strong>
+                                            </td>
+                                            <td>
+                                                <span class="badge"
+                                                      th:classappend="${cuenta.estado.toString() == 'ACTIVA'} ? 'badge-success' : 'badge-danger'"
+                                                      th:text="${cuenta.estado}"></span>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <div th:if="${#lists.isEmpty(cuentas)}" class="empty-state">
+                                <i class="bi bi-inbox"></i>
+                                <h4>No hay cuentas registradas</h4>
+                                <p>Utiliza el formulario para crear la primera cuenta bancaria</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </main>
+
+            <!-- FOOTER -->
+            <footer class="main-footer">
+                <div>
+                    <i class="bi bi-shield-check"></i> BilleteSeguro &copy; 2024 - Sistema Bancario
+                </div>
+                <div class="footer-links">
+                    <a href="/">Dashboard</a>
+                    <a href="/operaciones">Operaciones</a>
+                    <a href="/movimientos">Movimientos</a>
+                </div>
+            </footer>
+
+        </div>
+    </div>
+
+    <script>
+        const API_URL = '/api';
+
+        document.getElementById('formCuenta').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const cuenta = {
+                titular: document.getElementById('titular').value.trim(),
+                dni: document.getElementById('dni').value.trim(),
+                tipoCuenta: document.getElementById('tipoCuenta').value
+            };
+
+            try {
+                const response = await fetch(`${API_URL}/cuentas`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(cuenta)
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    mostrarMensaje('mensajeCuenta',
+                        `<i class="bi bi-check-circle-fill"></i> Cuenta creada exitosamente: <strong>${data.numeroCuenta}</strong>`, 'success');
+                    this.reset();
+                    setTimeout(() => location.reload(), 1800);
+                } else {
+                    const error = await response.json();
+                    mostrarMensaje('mensajeCuenta',
+                        `<i class="bi bi-x-circle-fill"></i> ${error.message || 'Error al crear la cuenta'}`, 'danger');
+                }
+            } catch (error) {
+                mostrarMensaje('mensajeCuenta',
+                    '<i class="bi bi-exclamation-triangle-fill"></i> Error de conexion con el servidor', 'danger');
+            }
+        });
+
+        function mostrarMensaje(elementId, mensaje, tipo) {
+            const element = document.getElementById(elementId);
+            element.innerHTML = `<div class="alert alert-${tipo}">${mensaje}</div>`;
+            setTimeout(() => element.innerHTML = '', 5000);
+        }
+    </script>
+</body>
+</html>

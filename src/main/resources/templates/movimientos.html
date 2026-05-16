@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movimientos | BilleteSeguro - Sistema Bancario</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link th:href="@{/css/style.css}" rel="stylesheet">
+    <script th:src="@{/js/toast.js}"></script>
+</head>
+<body>
+    <div class="app-container">
+
+        <!-- SIDEBAR -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo">
+                    <div class="logo-icon">
+                        <i class="bi bi-bank"></i>
+                    </div>
+                    <div class="logo-text">
+                        <h1>BilleteSeguro</h1>
+                        <span>Enterprise Banking</span>
+                    </div>
+                </div>
+            </div>
+
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <span class="nav-section-title">Menu Principal</span>
+                    <ul class="nav-menu">
+                        <li class="nav-menu-item">
+                            <a href="/" class="nav-menu-link">
+                                <i class="bi bi-grid-1x2-fill"></i>
+                                <span>Dashboard</span>
+                            </a>
+                        </li>
+                        <li class="nav-menu-item">
+                            <a href="/cuentas" class="nav-menu-link">
+                                <i class="bi bi-wallet2"></i>
+                                <span>Cuentas</span>
+                            </a>
+                        </li>
+                        <li class="nav-menu-item">
+                            <a href="/operaciones" class="nav-menu-link">
+                                <i class="bi bi-arrow-left-right"></i>
+                                <span>Operaciones</span>
+                            </a>
+                        </li>
+                        <li class="nav-menu-item">
+                            <a href="/movimientos" class="nav-menu-link active">
+                                <i class="bi bi-clock-history"></i>
+                                <span>Movimientos</span>
+                            </a>
+                        </li>
+                        <li class="nav-menu-item">
+                            <a href="/intereses" class="nav-menu-link">
+                                <i class="bi bi-graph-up-arrow"></i>
+                                <span>Intereses</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="nav-section">
+                    <span class="nav-section-title">Arquitectura AA4</span>
+                    <ul class="nav-menu">
+                        <li class="nav-menu-item">
+                            <a href="/#patrones-section" class="nav-menu-link">
+                                <i class="bi bi-diagram-3-fill"></i>
+                                <span>Patrones de Diseño</span>
+                            </a>
+                        </li>
+                        <li class="nav-menu-item">
+                            <a href="/demos" class="nav-menu-link">
+                                <i class="bi bi-play-circle-fill"></i>
+                                <span>Demos en Vivo</span>
+                                <span class="badge-nav" style="background: linear-gradient(135deg, #f59e0b, #ef4444);">LIVE</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="nav-section">
+                    <span class="nav-section-title">Base de Datos</span>
+                    <ul class="nav-menu">
+                        <li class="nav-menu-item">
+                            <a href="/h2-console" target="_blank" class="nav-menu-link">
+                                <i class="bi bi-database-fill"></i>
+                                <span>Consola H2</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="user-profile">
+                    <div class="user-avatar">AD</div>
+                    <div class="user-info">
+                        <h4>Administrador</h4>
+                        <span>admin@billeteseguro.com</span>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- MAIN CONTENT WRAPPER -->
+        <div class="main-wrapper">
+
+            <!-- TOP HEADER -->
+            <header class="top-header">
+                <div class="header-left">
+                    <div class="page-title-header">
+                        <h2><i class="bi bi-clock-history text-primary"></i> Historial de Movimientos</h2>
+                        <p>Consulta y analiza todas las transacciones por cuenta</p>
+                    </div>
+                </div>
+                <div class="header-right">
+                    <div class="notification-wrapper">
+                        <button class="header-btn" onclick="toggleNotifications()">
+                            <i class="bi bi-bell"></i>
+                            <span class="notification-badge" id="notifBadge">0</span>
+                        </button>
+                        <div class="notification-dropdown" id="notificationDropdown">
+                            <div class="notification-header">
+                                <h4><i class="bi bi-bell-fill"></i> Notificaciones</h4>
+                                <button class="btn-clear" onclick="clearNotifications()">Limpiar</button>
+                            </div>
+                            <div class="notification-list" id="notificationList">
+                                <div class="notification-empty">
+                                    <i class="bi bi-inbox"></i>
+                                    <p>No hay notificaciones</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- MAIN CONTENT -->
+            <main class="main-content">
+
+                <!-- Search Card -->
+                <div class="content-card mb-4">
+                    <div class="card-header">
+                        <div class="card-header-left">
+                            <div class="card-icon purple">
+                                <i class="bi bi-search"></i>
+                            </div>
+                            <div>
+                                <div class="card-title">Buscar Movimientos</div>
+                                <div class="card-subtitle">Selecciona una cuenta para ver su historial</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-flex gap-3" style="align-items: flex-end;">
+                            <div class="form-group" style="flex: 1; margin-bottom: 0;">
+                                <label class="form-label">Seleccionar Cuenta</label>
+                                <select class="form-control" id="cuentaMovimientos">
+                                    <option value="">-- Seleccionar una cuenta --</option>
+                                    <option th:each="cuenta : ${cuentas}"
+                                            th:value="${cuenta.numeroCuenta}"
+                                            th:text="${cuenta.numeroCuenta + ' - ' + cuenta.titular + ' (S/. ' + #numbers.formatDecimal(cuenta.saldo, 1, 2) + ')'}">
+                                    </option>
+                                </select>
+                            </div>
+                            <button class="btn btn-primary btn-lg" onclick="cargarMovimientos()" style="height: 48px;">
+                                <i class="bi bi-search"></i>
+                                Buscar Movimientos
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Account Info Card (Hidden initially) -->
+                <div id="infoCuenta" class="content-card mb-4" style="display: none;">
+                    <div class="card-header">
+                        <div class="card-header-left">
+                            <div class="card-icon info">
+                                <i class="bi bi-person-badge"></i>
+                            </div>
+                            <div>
+                                <div class="card-title">Informacion de la Cuenta</div>
+                                <div class="card-subtitle">Datos del titular y saldo actual</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="stats-grid" style="grid-template-columns: repeat(3, 1fr);">
+                            <div class="stat-card primary" style="padding: 1.25rem;">
+                                <div class="stat-label">Titular</div>
+                                <div class="stat-value" id="titularCuenta" style="font-size: 1.25rem;">-</div>
+                            </div>
+                            <div class="stat-card info" style="padding: 1.25rem;">
+                                <div class="stat-label">Numero de Cuenta</div>
+                                <div class="stat-value" id="numeroCuenta" style="font-size: 1.25rem;">-</div>
+                            </div>
+                            <div class="stat-card success" style="padding: 1.25rem;">
+                                <div class="stat-label">Saldo Actual</div>
+                                <div class="stat-value" id="saldoCuenta" style="font-size: 1.5rem;">S/. 0.00</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Transactions Table Card -->
+                <div class="content-card">
+                    <div class="card-header">
+                        <div class="card-header-left">
+                            <div class="card-icon primary">
+                                <i class="bi bi-list-columns-reverse"></i>
+                            </div>
+                            <div>
+                                <div class="card-title">Registro de Transacciones</div>
+                                <div class="card-subtitle" id="contadorMovimientos">Selecciona una cuenta para ver movimientos</div>
+                            </div>
+                        </div>
+                        <button class="btn btn-outline btn-sm" onclick="cargarMovimientos()" id="btnRefresh" style="display: none;">
+                            <i class="bi bi-arrow-clockwise"></i> Actualizar
+                        </button>
+                    </div>
+                    <div class="card-body no-padding">
+
+                        <!-- Initial Message -->
+                        <div id="mensajeInicial" class="empty-state">
+                            <i class="bi bi-search"></i>
+                            <h4>Consulta el historial de movimientos</h4>
+                            <p>Selecciona una cuenta del listado superior y presiona "Buscar Movimientos"</p>
+                        </div>
+
+                        <!-- Table Container -->
+                        <div id="tablaContainer" style="display: none;">
+                            <div class="table-wrapper">
+                                <table class="data-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Fecha y Hora</th>
+                                            <th>Tipo de Operacion</th>
+                                            <th>Monto</th>
+                                            <th>Saldo Anterior</th>
+                                            <th>Saldo Posterior</th>
+                                            <th>Descripcion</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tablaMovimientos">
+                                        <!-- Filled by JavaScript -->
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <!-- No Movements Message -->
+                            <div id="sinMovimientos" class="empty-state" style="display: none;">
+                                <i class="bi bi-inbox"></i>
+                                <h4>Sin movimientos registrados</h4>
+                                <p>Esta cuenta aun no tiene transacciones. Realiza un deposito o transferencia para comenzar.</p>
+                                <a href="/operaciones" class="btn btn-primary mt-3">
+                                    <i class="bi bi-arrow-left-right"></i> Ir a Operaciones
+                                </a>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+            </main>
+
+            <!-- FOOTER -->
+            <footer class="main-footer">
+                <div>
+                    <i class="bi bi-shield-check"></i> BilleteSeguro &copy; 2024 - Sistema Bancario
+                </div>
+                <div class="footer-links">
+                    <a href="/">Dashboard</a>
+                    <a href="/operaciones">Operaciones</a>
+                    <a href="/cuentas">Cuentas</a>
+                </div>
+            </footer>
+
+        </div>
+    </div>
+
+    <script>
+        const API_URL = '/api';
+
+        async function cargarMovimientos() {
+            const numeroCuenta = document.getElementById('cuentaMovimientos').value;
+            if (!numeroCuenta) {
+                mostrarAlerta('Por favor seleccione una cuenta');
+                return;
+            }
+
+            try {
+                // Get account info
+                const cuentaResponse = await fetch(`${API_URL}/cuentas/numero/${numeroCuenta}`);
+                if (cuentaResponse.ok) {
+                    const cuenta = await cuentaResponse.json();
+                    document.getElementById('titularCuenta').textContent = cuenta.titular;
+                    document.getElementById('numeroCuenta').textContent = cuenta.numeroCuenta;
+                    document.getElementById('saldoCuenta').textContent = `S/. ${cuenta.saldo.toFixed(2)}`;
+                    document.getElementById('infoCuenta').style.display = 'block';
+                }
+
+                // Get movements
+                const movResponse = await fetch(`${API_URL}/movimientos/${numeroCuenta}`);
+                const movimientos = await movResponse.json();
+
+                document.getElementById('mensajeInicial').style.display = 'none';
+                document.getElementById('tablaContainer').style.display = 'block';
+                document.getElementById('btnRefresh').style.display = 'inline-flex';
+
+                const tbody = document.getElementById('tablaMovimientos');
+                tbody.innerHTML = '';
+
+                if (movimientos.length === 0) {
+                    document.getElementById('sinMovimientos').style.display = 'flex';
+                    document.querySelector('.table-wrapper').style.display = 'none';
+                    document.getElementById('contadorMovimientos').textContent = '0 transacciones encontradas';
+                } else {
+                    document.getElementById('sinMovimientos').style.display = 'none';
+                    document.querySelector('.table-wrapper').style.display = 'block';
+                    document.getElementById('contadorMovimientos').textContent = `${movimientos.length} transacciones encontradas`;
+
+                    // Sort by date descending
+                    movimientos.reverse().forEach(mov => {
+                        const tipoInfo = getTipoInfo(mov.tipo);
+                        const signo = tipoInfo.signo;
+                        const fecha = new Date(mov.fecha).toLocaleString('es-PE', {
+                            day: '2-digit',
+                            month: '2-digit',
+                            year: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                        });
+
+                        tbody.innerHTML += `
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-center gap-2">
+                                        <i class="bi bi-calendar3 text-muted"></i>
+                                        <span>${fecha}</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="badge ${tipoInfo.badge}">
+                                        <i class="bi ${tipoInfo.icon}"></i> ${tipoInfo.label}
+                                    </span>
+                                </td>
+                                <td>
+                                    <strong class="${signo === '+' ? 'text-success' : 'text-danger'}">
+                                        ${signo} S/. ${mov.monto.toFixed(2)}
+                                    </strong>
+                                </td>
+                                <td>S/. ${mov.saldoAnterior.toFixed(2)}</td>
+                                <td><strong class="text-primary">S/. ${mov.saldoPosterior.toFixed(2)}</strong></td>
+                                <td><span class="text-muted">${mov.descripcion || '-'}</span></td>
+                            </tr>
+                        `;
+                    });
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                mostrarAlerta('Error al cargar los movimientos. Intente nuevamente.');
+            }
+        }
+
+        function getTipoInfo(tipo) {
+            switch(tipo) {
+                case 'DEPOSITO':
+                    return { label: 'Deposito', badge: 'badge-success', icon: 'bi-arrow-down-circle-fill', signo: '+' };
+                case 'RETIRO':
+                    return { label: 'Retiro', badge: 'badge-warning', icon: 'bi-arrow-up-circle-fill', signo: '-' };
+                case 'TRANSFERENCIA_ENVIADA':
+                    return { label: 'Transferencia Enviada', badge: 'badge-danger', icon: 'bi-send-fill', signo: '-' };
+                case 'TRANSFERENCIA_RECIBIDA':
+                    return { label: 'Transferencia Recibida', badge: 'badge-info', icon: 'bi-download', signo: '+' };
+                default:
+                    return { label: tipo, badge: 'badge-purple', icon: 'bi-circle-fill', signo: '' };
+            }
+        }
+
+        function mostrarAlerta(mensaje) {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = 'alert alert-warning';
+            alertDiv.style.cssText = 'position: fixed; top: 20px; right: 20px; z-index: 9999; max-width: 400px;';
+            alertDiv.innerHTML = `<i class="bi bi-exclamation-triangle-fill"></i> ${mensaje}`;
+            document.body.appendChild(alertDiv);
+            setTimeout(() => alertDiv.remove(), 3000);
+        }
+
+        // Auto-load if account is pre-selected
+        document.addEventListener('DOMContentLoaded', function() {
+            const select = document.getElementById('cuentaMovimientos');
+            if (select.value) {
+                cargarMovimientos();
+            }
+        });
+
+    </script>
+</body>
+</html>
